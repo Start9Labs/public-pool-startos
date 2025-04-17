@@ -18,15 +18,9 @@ RUN \
     cd public-pool && \
     git checkout ${PUBLIC_POOL_SHA}
 
-# apply patch for rpc-bitcoin (see: https://github.com/vansergen/rpc-bitcoin/pull/65)
-COPY patches/rpc-bitcoin+2.0.0.patch /build/public-pool/patches/rpc-bitcoin+2.0.0.patch
-
 RUN \
     cd public-pool && \
     npm ci && \
-    # apply patch for rpc-bitcoin (see: https://github.com/vansergen/rpc-bitcoin/pull/65)
-    npm i patch-package && \
-    npx patch-package && \
     npm run build
 
 RUN \
@@ -35,8 +29,8 @@ RUN \
     git checkout ${PUBLIC_POOL_UI_SHA}
 
 # patch environment.prod.ts for self-hosting
-COPY patches/environment.prod.ts /build/public-pool-ui/src/environments/environment.prod.ts
-COPY patches/public-pool-ui.patch /build/public-pool-ui/public-pool-ui.patch
+COPY assets/patches/environment.prod.ts /build/public-pool-ui/src/environments/environment.prod.ts
+COPY assets/patches/public-pool-ui.patch /build/public-pool-ui/public-pool-ui.patch
 
 RUN \
     cd public-pool-ui && \
@@ -49,13 +43,17 @@ FROM node:20-bookworm-slim
 
 ENV NODE_ENV=production
 
+WORKDIR /public-pool
+
 RUN \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    nginx && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-WORKDIR /public-pool
+COPY ./assets/nginx.conf /etc/nginx/sites-available/default
+
 COPY --from=build /build/public-pool/node_modules ./node_modules
 COPY --from=build /build/public-pool/dist ./dist
 
