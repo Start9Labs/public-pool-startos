@@ -7,6 +7,7 @@ export const manifest = setupManifest({
   wrapperRepo: 'https://github.com/remcoros/public-pool-startos',
   upstreamRepo: 'https://github.com/benjamin-wilson/public-pool',
   supportSite: 'https://github.com/benjamin-wilson/public-pool/issues',
+  docsUrl: 'https://github.com/remcoros/public-pool-startos/blob/main/instructions.md',
   marketingSite: 'https://web.public-pool.io',
   donationUrl: 'https://web.public-pool.io',
   description: {
@@ -34,13 +35,13 @@ export const manifest = setupManifest({
     bitcoind: {
       description: 'Used to subscribe to new block events',
       optional: true,
-      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.6/bitcoind.s9pk',
+      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.8/bitcoind.s9pk',
     },
     'bitcoind-testnet': {
       description: 'Used to subscribe to new block events',
       optional: true,
       // @TODO replace with testnet when available
-      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.6/bitcoind.s9pk',
+      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.8/bitcoind.s9pk',
     },
   },
 })
