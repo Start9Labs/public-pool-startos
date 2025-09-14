@@ -45,13 +45,19 @@ export const manifest = setupManifest({
     bitcoind: {
       description: 'Used to subscribe to new block events',
       optional: true,
-      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.8/bitcoind.s9pk',
+      metadata: {
+        title: 'A Bitcoin Full Node',
+        icon: 'https://bitcoin.org/img/icons/opengraph.png',
+      },
     },
     'bitcoind-testnet': {
       description: 'Used to subscribe to new block events',
       optional: true,
-      // @TODO replace with testnet when available
-      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.8/bitcoind.s9pk',
+      metadata: {
+        title: 'A Bitcoin Full Node',
+        // @TODO replace with testnet when available
+        icon: 'https://bitcoin.org/img/icons/opengraph.png',
+      },
     },
   },
 })
