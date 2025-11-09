@@ -5,7 +5,7 @@ const STRATUM_PORT = Number(envDefaults.STRATUM_PORT)
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   // ** UI Multi **
-  const uiMulti = sdk.MultiHost.of(effects, 'ui-multi')
+  const uiMulti = sdk.MultiHost.of(effects, 'main')
   const uiMultiOrigin = await uiMulti.bindPort(uiPort, {
     protocol: 'http',
   })
@@ -23,7 +23,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const uiReceipt = await uiMultiOrigin.export([ui])
 
   // ** Stratum Multi **
-  const stratumMulti = sdk.MultiHost.of(effects, 'stratum-multi')
+  const stratumMulti = sdk.MultiHost.of(effects, 'stratum')
   // Stratum
   const stratumMultiOrigin = await stratumMulti.bindPort(STRATUM_PORT, {
     protocol: null,
