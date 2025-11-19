@@ -39,7 +39,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         dependencyId:
           env.NETWORK === 'mainnet' ? 'bitcoind' : 'bitcoind-testnet',
         volumeId: 'main',
-        subpath: null,
+        subpath: env.NETWORK === 'mainnet' ? null : 'testnet4',
         mountpoint: bitcoindMountpoint,
         readonly: true,
       }),
@@ -77,11 +77,8 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     .addDaemon('stratum', {
       subcontainer: stratumSub,
       exec: {
-        command: [
-          'sh',
-          '-c',
-          'cd /public-pool/ && /usr/local/bin/node dist/main.js',
-        ],
+        command: ['/usr/local/bin/node', 'dist/main.js'],
+        cwd: '/public-pool',
       },
       ready: {
         display: 'Stratum Server',

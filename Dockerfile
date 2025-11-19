@@ -14,17 +14,18 @@ RUN \
 WORKDIR /build
 
 RUN \
-    git clone https://github.com/benjamin-wilson/public-pool.git && \
+    git clone --depth=1 https://github.com/benjamin-wilson/public-pool.git && \
     cd public-pool && \
     git checkout ${PUBLIC_POOL_SHA}
 
 RUN \
     cd public-pool && \
-    npm ci && \
-    npm run build
+    npm ci --no-audit --no-fund && \
+    NODE_ENV=production npm run build && \
+    npm prune --production
 
 RUN \
-    git clone https://github.com/benjamin-wilson/public-pool-ui.git && \
+    git clone --depth=1 https://github.com/benjamin-wilson/public-pool-ui.git && \
     cd public-pool-ui && \
     git checkout ${PUBLIC_POOL_UI_SHA}
 
@@ -35,8 +36,9 @@ COPY assets/patches/public-pool-ui.patch /build/public-pool-ui/public-pool-ui.pa
 RUN \
     cd public-pool-ui && \
     git apply public-pool-ui.patch && \
-    npm ci && \
-    npm run build
+    npm ci --no-audit --no-fund && \
+    NODE_ENV=production npm run build && \
+    npm prune --production
 
 # main container
 FROM node:20-bookworm-slim
