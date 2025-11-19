@@ -20,7 +20,11 @@ export const inputSpec = InputSpec.of({
       .getOwn(effects, 'stratum')
       .const()
 
-    const urls = stratumInterface?.addressInfo?.urls || []
+    const urls =
+      stratumInterface?.addressInfo?.filter({
+        kind: ['domain', 'ipv4', 'onion'],
+        predicate: (s) => !s.hostname.value.startsWith('127.'),
+      }) || []
 
     return {
       name: 'Server Display URL',

@@ -1,7 +1,6 @@
 import { envFile } from './file-models/env'
 import { sdk } from './sdk'
 import { config as mainnetConfig } from 'bitcoind-startos/startos/actions/config/other'
-// @TODO update testnet import when available
 import { config as testnetConfig } from 'bitcoind-testnet-startos/startos/actions/config/other'
 
 export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
@@ -26,14 +25,14 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
     ? {
         bitcoind: {
           kind: 'running',
-          versionRange: '>=29.2',
+          versionRange: '>=29.1',
           healthChecks: ['sync-progress'],
         },
       }
     : {
         'bitcoind-testnet': {
           kind: 'running',
-          versionRange: '>=29.2',
+          versionRange: '>=29.1',
           healthChecks: ['sync-progress'],
         },
       }
