@@ -32,32 +32,6 @@ export const envDefaults = {
   POOL_IDENTIFIER: 'Public-Pool',
 }
 
-export function jsonToDotenv<
-  T extends Record<string, string | number | boolean | undefined>,
->(jsonObj: T): string {
-  return Object.entries(jsonObj)
-    .map(([key, value]) => `${key.toUpperCase()}=${value}`)
-    .join('\n')
-}
-
-export function dotenvToJson<
-  T extends Record<string, string | number | boolean | undefined>,
->(dotenvStr: string): T {
-  return (
-    dotenvStr
-      .split('\n')
-      // ignore empty lines and comments
-      .filter((line) => line.trim() && !line.startsWith('#'))
-      .reduce((acc, line) => {
-        const [key, value] = line.split('=')
-        if (key && value !== undefined) {
-          ;(acc as Record<string, string>)[key.trim()] = value.trim()
-        }
-        return acc
-      }, {} as T)
-  )
-}
-
 export async function getStratumIpv4Address(effects: Effects) {
   const stratumInterface = await sdk.serviceInterface
     .getOwn(effects, 'stratum')
@@ -66,6 +40,7 @@ export async function getStratumIpv4Address(effects: Effects) {
   const address = stratumInterface?.addressInfo?.filter({
     visibility: 'private',
     kind: 'ipv4',
+    exclude: { kind: ['localhost', 'link-local'] },
   })?.[0]
 
   if (!address) throw 'No IPv4 addresses'
