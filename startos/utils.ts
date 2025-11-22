@@ -66,7 +66,6 @@ export async function getStratumIpv4Address(effects: Effects) {
   const address = stratumInterface?.addressInfo?.filter({
     visibility: 'private',
     kind: 'ipv4',
-    predicate: (s) => !s.hostname.value.startsWith('127.'),
   })?.[0]
 
   if (!address) throw 'No IPv4 addresses'

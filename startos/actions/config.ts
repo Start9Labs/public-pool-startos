@@ -23,7 +23,6 @@ export const inputSpec = InputSpec.of({
     const urls =
       stratumInterface?.addressInfo?.filter({
         kind: ['domain', 'ipv4', 'onion'],
-        predicate: (s) => !s.hostname.value.startsWith('127.'),
       }) || []
 
     return {

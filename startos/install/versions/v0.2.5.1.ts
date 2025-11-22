@@ -11,7 +11,7 @@ import {
 import { store } from '../../file-models/store.json'
 
 export const v_0_2_5_1 = VersionInfo.of({
-  version: '0.2.5:1-beta.3',
+  version: '0.2.5:1-beta.4',
   releaseNotes: 'Revamped for StartOS 0.4.0',
   migrations: {
     up: async ({ effects }) => {
