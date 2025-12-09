@@ -2,7 +2,7 @@ FROM node:20-bookworm-slim AS build
 
 # Public Pool repo does not use versions/tags yet, point directly to commit sha
 ARG PUBLIC_POOL_SHA=b971e9ce4ccd23ae98536d57dcf63657ade7919f
-ARG PUBLIC_POOL_UI_SHA=00954f46866cc23c1b04d34a13ffb4f2cc8f9bbb
+ARG PUBLIC_POOL_UI_SHA=1c0b2d93e3ce0a81d4faa7b1d444ace936e3f63d
 
 RUN \
     apt-get update && \
@@ -14,7 +14,7 @@ RUN \
 WORKDIR /build
 
 RUN \
-    git clone --depth=1 https://github.com/benjamin-wilson/public-pool.git && \
+    git clone https://github.com/benjamin-wilson/public-pool.git && \
     cd public-pool && \
     git checkout ${PUBLIC_POOL_SHA}
 
@@ -25,7 +25,7 @@ RUN \
     npm prune --production
 
 RUN \
-    git clone --depth=1 https://github.com/benjamin-wilson/public-pool-ui.git && \
+    git clone https://github.com/benjamin-wilson/public-pool-ui.git && \
     cd public-pool-ui && \
     git checkout ${PUBLIC_POOL_UI_SHA}
 
