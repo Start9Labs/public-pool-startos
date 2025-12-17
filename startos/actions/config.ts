@@ -24,7 +24,7 @@ export const inputSpec = InputSpec.of({
       stratumInterface?.addressInfo?.filter({
         kind: ['domain', 'ipv4', 'onion'],
         exclude: { kind: ['localhost', 'link-local'] },
-      }) || []
+      }).format() || []
 
     return {
       name: 'Server Display URL',

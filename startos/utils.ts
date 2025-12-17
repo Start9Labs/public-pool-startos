@@ -41,7 +41,7 @@ export async function getStratumIpv4Address(effects: Effects) {
     visibility: 'private',
     kind: 'ipv4',
     exclude: { kind: ['localhost', 'link-local'] },
-  })?.[0]
+  })?.format()[0]
 
   if (!address) throw 'No IPv4 addresses'
 

@@ -4,7 +4,7 @@ import { bitcoindMountpoint, envDefaults, uiPort } from './utils'
 import { envFile } from './file-models/env'
 import { store } from './file-models/store.json'
 
-export const main = sdk.setupMain(async ({ effects, started }) => {
+export const main = sdk.setupMain(async ({ effects }) => {
   /**
    * ======================== Setup (optional) ========================
    *
@@ -73,7 +73,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    *
    * Each daemon defines its own health check, which can optionally be exposed to the user.
    */
-  return sdk.Daemons.of(effects, started)
+  return sdk.Daemons.of(effects)
     .addDaemon('stratum', {
       subcontainer: stratumSub,
       exec: {
