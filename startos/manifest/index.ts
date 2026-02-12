@@ -1,4 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
+import { short, long } from './i18n'
 
 export const manifest = setupManifest({
   id: 'public-pool',
@@ -7,26 +8,10 @@ export const manifest = setupManifest({
   wrapperRepo: 'https://github.com/Start9Labs/public-pool-startos',
   upstreamRepo: 'https://github.com/benjamin-wilson/public-pool',
   supportSite: 'https://github.com/benjamin-wilson/public-pool/issues',
-  docsUrl:
-    'https://github.com/Start9Labs/public-pool-startos/blob/main/instructions.md',
+  docsUrl: 'https://github.com/benjamin-wilson/public-pool#readme',
   marketingSite: 'https://web.public-pool.io',
   donationUrl: 'https://web.public-pool.io',
-  description: {
-    short: {
-      en_US: 'Open source Bitcoin mining pool.',
-      es_ES: 'Pool de minería de Bitcoin de código abierto.',
-      de_DE: 'Open-Source-Bitcoin-Mining-Pool.',
-      pl_PL: 'Pula wydobywcza Bitcoin o otwartym kodzie źródłowym.',
-      fr_FR: 'Pool de minage Bitcoin open source.',
-    },
-    long: {
-      en_US: 'Open source Bitcoin mining pool.',
-      es_ES: 'Pool de minería de Bitcoin de código abierto.',
-      de_DE: 'Open-Source-Bitcoin-Mining-Pool.',
-      pl_PL: 'Pula wydobywcza Bitcoin o otwartym kodzie źródłowym.',
-      fr_FR: 'Pool de minage Bitcoin open source.',
-    },
-  },
+  description: { short, long },
   volumes: ['main'],
   images: {
     'public-pool': {
@@ -34,7 +19,6 @@ export const manifest = setupManifest({
         dockerBuild: {},
       },
       arch: ['x86_64', 'aarch64'],
-      emulateMissingAs: 'aarch64',
     },
   },
   dependencies: {
