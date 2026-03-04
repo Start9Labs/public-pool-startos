@@ -1,22 +1,14 @@
 import { sdk } from './sdk'
-import { FileHelper, T } from '@start9labs/start-sdk'
-import { bitcoindMountpoint, envDefaults, uiPort } from './utils'
-import { envFile } from './file-models/env'
+import { FileHelper } from '@start9labs/start-sdk'
+import { bitcoindMountpoint, stratumPort, uiPort } from './utils'
 import { store } from './file-models/store.json'
 import { i18n } from './i18n'
 
 export const main = sdk.setupMain(async ({ effects }) => {
-  /**
-   * ======================== Setup (optional) ========================
-   *
-   * In this section, we fetch any resources or run any desired preliminary commands.
-   */
   console.info('Starting Public Pool!')
 
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
-
-  const env = (await envFile.read().const(effects))!
 
   // ** Stratum subcontainer **
   const stratumSub = await sdk.SubContainer.of(
@@ -25,7 +17,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     sdk.Mounts.of()
       .mountVolume({
         volumeId: 'main',
-        subpath: env.NETWORK,
+        subpath: 'mainnet',
         mountpoint: '/public-pool/DB',
         readonly: false,
       })
@@ -37,10 +29,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
         type: 'file',
       })
       .mountDependency({
-        dependencyId:
-          env.NETWORK === 'mainnet' ? 'bitcoind' : 'bitcoind-testnet',
+        dependencyId: 'bitcoind',
         volumeId: 'main',
-        subpath: env.NETWORK === 'mainnet' ? null : 'testnet4',
+        subpath: null,
         mountpoint: bitcoindMountpoint,
         readonly: true,
       }),
@@ -87,7 +78,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
         fn: () =>
           sdk.healthCheck.checkPortListening(
             effects,
-            Number(envDefaults.STRATUM_PORT),
+            stratumPort,
             {
               successMessage: i18n('Stratum server is ready'),
               errorMessage: i18n('Stratum server is not ready'),

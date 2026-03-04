@@ -16,15 +16,14 @@ export const inputSpec = InputSpec.of({
     patterns: [utils.Patterns.ascii],
   }),
   poolDisplayUrl: Value.dynamicSelect(async ({ effects }) => {
-    const stratumInterface = await sdk.serviceInterface
-      .getOwn(effects, 'stratum')
+    const urls = await sdk.serviceInterface
+      .getOwn(effects, 'stratum', (iface) =>
+        iface?.addressInfo?.filter({
+          kind: ['domain', 'ipv4'],
+          exclude: { kind: ['localhost', 'link-local'] },
+        })?.format() || [],
+      )
       .const()
-
-    const urls =
-      stratumInterface?.addressInfo?.filter({
-        kind: ['domain', 'ipv4', 'onion'],
-        exclude: { kind: ['localhost', 'link-local'] },
-      }).format() || []
 
     return {
       name: 'Server Display URL',

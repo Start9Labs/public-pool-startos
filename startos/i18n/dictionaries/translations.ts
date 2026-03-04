@@ -23,13 +23,6 @@ export default {
     204: 'Configurar',
     205: 'Personaliza tu instancia de Public Pool',
 
-    // actions/setNetwork.ts
-    300: 'Cambiar a ${network}',
-    301: 'Actualmente conectado a ${currentNetwork}. Ejecuta esta acción para conectarte a ${otherNetwork} en su lugar',
-    302: '¿Estás seguro de que quieres cambiar a ${network}?',
-    303: 'Éxito',
-    304: 'Cambiado exitosamente a ${network}',
-
     // manifest/index.ts
     400: 'Se usa para suscribirse a nuevos eventos de bloques',
   },
@@ -54,13 +47,6 @@ export default {
     203: 'Die IP-Adresse oder der Hostname, die auf Ihrer Public Pool-Homepage angezeigt werden sollen',
     204: 'Konfigurieren',
     205: 'Passen Sie Ihre Public Pool-Instanz an',
-
-    // actions/setNetwork.ts
-    300: 'Wechseln zu ${network}',
-    301: 'Derzeit verbunden mit ${currentNetwork}. Führen Sie die Aktion aus, um stattdessen eine Verbindung zu ${otherNetwork} herzustellen',
-    302: 'Sind Sie sicher, dass Sie zu ${network} wechseln möchten?',
-    303: 'Erfolg',
-    304: 'Erfolgreich zu ${network} gewechselt',
 
     // manifest/index.ts
     400: 'Wird verwendet, um neue Block-Ereignisse zu abonnieren',
@@ -87,13 +73,6 @@ export default {
     204: 'Konfiguruj',
     205: 'Dostosuj swoją instancję Public Pool',
 
-    // actions/setNetwork.ts
-    300: 'Przełącz na ${network}',
-    301: 'Obecnie podłączony do ${currentNetwork}. Uruchom akcję, aby zamiast tego połączyć się z ${otherNetwork}',
-    302: 'Czy na pewno chcesz przełączyć się na ${network}?',
-    303: 'Sukces',
-    304: 'Pomyślnie przełączono na ${network}',
-
     // manifest/index.ts
     400: 'Używany do subskrypcji nowych zdarzeń bloków',
   },
@@ -118,13 +97,6 @@ export default {
     203: 'L\'adresse IP ou le nom d\'hôte à afficher sur votre page d\'accueil Public Pool',
     204: 'Configurer',
     205: 'Personnalisez votre instance Public Pool',
-
-    // actions/setNetwork.ts
-    300: 'Basculer vers ${network}',
-    301: 'Actuellement connecté à ${currentNetwork}. Exécutez l\'action pour vous connecter à ${otherNetwork} à la place',
-    302: 'Êtes-vous sûr de vouloir basculer vers ${network} ?',
-    303: 'Succès',
-    304: 'Basculé avec succès vers ${network}',
 
     // manifest/index.ts
     400: 'Utilisé pour s\'abonner aux nouveaux événements de blocs',

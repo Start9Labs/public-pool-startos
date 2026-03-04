@@ -1,16 +1,16 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { short, long } from './i18n'
+import { short, long, bitcoindDescription } from './i18n'
 
 export const manifest = setupManifest({
   id: 'public-pool',
   title: 'Public Pool',
   license: 'GPL',
-  wrapperRepo: 'https://github.com/Start9Labs/public-pool-startos',
+  packageRepo:
+    'https://github.com/Start9Labs/public-pool-startos/tree/update/040',
   upstreamRepo: 'https://github.com/benjamin-wilson/public-pool',
-  supportSite: 'https://github.com/benjamin-wilson/public-pool/issues',
-  docsUrl: 'https://github.com/benjamin-wilson/public-pool#readme',
-  marketingSite: 'https://web.public-pool.io',
+  marketingUrl: 'https://web.public-pool.io',
   donationUrl: 'https://web.public-pool.io',
+  docsUrls: ['https://github.com/benjamin-wilson/public-pool#readme'],
   description: { short, long },
   volumes: ['main'],
   images: {
@@ -23,20 +23,11 @@ export const manifest = setupManifest({
   },
   dependencies: {
     bitcoind: {
-      description: 'Used to subscribe to new block events',
-      optional: true,
+      description: bitcoindDescription,
+      optional: false,
       metadata: {
         title: 'A Bitcoin Full Node',
-        icon: 'https://bitcoin.org/img/icons/opengraph.png',
-      },
-    },
-    'bitcoind-testnet': {
-      description: 'Used to subscribe to new block events',
-      optional: true,
-      metadata: {
-        title: 'A Bitcoin Full Node',
-        // @TODO replace with testnet when available
-        icon: 'https://bitcoin.org/img/icons/opengraph.png',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoind-startos/refs/heads/master/icon.svg',
       },
     },
   },

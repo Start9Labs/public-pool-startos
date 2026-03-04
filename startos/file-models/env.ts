@@ -1,47 +1,27 @@
-import { matches, FileHelper } from '@start9labs/start-sdk'
+import { FileHelper, z } from '@start9labs/start-sdk'
 import { sdk } from '../sdk'
-import { envDefaults, mainnet, testnet } from '../utils'
 
-const { object, string, literal, oneOf, allOf, number, literals } = matches
+const BITCOIN_RPC_HOST = 'bitcoind.startos'
 
-const {
-  BITCOIN_RPC_TIMEOUT,
-  API_PORT,
-  STRATUM_PORT,
-  POOL_IDENTIFIER,
-  API_SECURE,
-} = envDefaults
-
-const shape = object({
-  BITCOIN_RPC_TIMEOUT: literal(BITCOIN_RPC_TIMEOUT)
-    .defaultTo(BITCOIN_RPC_TIMEOUT)
-    .onMismatch(BITCOIN_RPC_TIMEOUT),
-  API_PORT: literal(API_PORT).onMismatch(API_PORT),
-  STRATUM_PORT: literal(STRATUM_PORT).onMismatch(STRATUM_PORT),
-  API_SECURE: literal(API_SECURE).onMismatch(API_SECURE),
-  POOL_IDENTIFIER: string.onMismatch(POOL_IDENTIFIER),
-  NETWORK: literals(mainnet.NETWORK, testnet.NETWORK).onMismatch(
-    mainnet.NETWORK,
-  ),
-  BITCOIN_RPC_URL: literals(
-    mainnet.BITCOIN_RPC_URL,
-    testnet.BITCOIN_RPC_URL,
-  ).onMismatch(mainnet.BITCOIN_RPC_URL),
-  BITCOIN_RPC_PORT: literals(
-    mainnet.BITCOIN_RPC_PORT,
-    testnet.BITCOIN_RPC_PORT,
-  ).onMismatch(mainnet.BITCOIN_RPC_PORT),
-  BITCOIN_RPC_COOKIEFILE: literals(
-    mainnet.BITCOIN_RPC_COOKIEFILE,
-    testnet.BITCOIN_RPC_COOKIEFILE,
-  ).onMismatch(mainnet.BITCOIN_RPC_COOKIEFILE),
-  BITCOIN_ZMQ_HOST: literals(
-    mainnet.BITCOIN_ZMQ_HOST,
-    testnet.BITCOIN_ZMQ_HOST,
-  ).onMismatch(mainnet.BITCOIN_ZMQ_HOST),
+const shape = z.object({
+  BITCOIN_RPC_TIMEOUT: z.literal('10000').catch('10000'),
+  API_PORT: z.literal('3334').catch('3334'),
+  STRATUM_PORT: z.literal('3333').catch('3333'),
+  API_SECURE: z.literal('false').catch('false'),
+  POOL_IDENTIFIER: z.string().catch('Public-Pool'),
+  BITCOIN_RPC_URL: z
+    .literal(`http://${BITCOIN_RPC_HOST}`)
+    .catch(`http://${BITCOIN_RPC_HOST}`),
+  BITCOIN_RPC_PORT: z.literal('8332').catch('8332'),
+  BITCOIN_RPC_COOKIEFILE: z
+    .literal('/mnt/bitcoind/.cookie')
+    .catch('/mnt/bitcoind/.cookie'),
+  BITCOIN_ZMQ_HOST: z
+    .literal(`tcp://${BITCOIN_RPC_HOST}:28332`)
+    .catch(`tcp://${BITCOIN_RPC_HOST}:28332`),
 })
 
-export type EnvType = typeof shape._TYPE
+export type EnvType = z.infer<typeof shape>
 
 export const envFile = FileHelper.env(
   {

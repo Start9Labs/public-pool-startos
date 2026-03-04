@@ -22,13 +22,6 @@ const dict = {
   'Configure': 204,
   'Customize your Public Pool instance': 205,
 
-  // actions/setNetwork.ts
-  'Switch to ${network}': 300,
-  'Currently connected to ${currentNetwork}. Run action to connect to ${otherNetwork} instead': 301,
-  'Are you sure you want to switch to ${network}?': 302,
-  'Success': 303,
-  'Successfully switched to ${network}': 304,
-
   // manifest/index.ts
   'Used to subscribe to new block events': 400,
 } as const

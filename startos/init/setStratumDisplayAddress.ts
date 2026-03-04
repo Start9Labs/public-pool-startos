@@ -1,9 +1,20 @@
 import { store } from '../file-models/store.json'
 import { sdk } from '../sdk'
-import { getStratumIpv4Address } from '../utils'
 
 export const setStratumDisplayAddress = sdk.setupOnInit(async (effects) => {
-  await store.merge(effects, {
-    stratumDisplayAddress: await getStratumIpv4Address(effects),
-  })
+  const stratumDisplayAddress = await sdk.serviceInterface
+    .getOwn(
+      effects,
+      'stratum',
+      (iface) =>
+        iface?.addressInfo
+          ?.filter({
+            visibility: 'private',
+            kind: 'ipv4',
+          })
+          ?.format()[0],
+    )
+    .const()
+
+  await store.merge(effects, { stratumDisplayAddress })
 })

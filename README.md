@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="icon.png" alt="Public Pool Logo" width="21%">
+  <img src="icon.svg" alt="Public Pool Logo" width="21%">
 </p>
 
 # Public Pool on StartOS
@@ -7,8 +7,8 @@
 > **Upstream docs:** <https://github.com/benjamin-wilson/public-pool#readme>
 >
 > Everything not listed in this document should behave the same as upstream
-> Public Pool v0.2.5. If a feature, setting, or behavior is not mentioned
-> here, the upstream documentation is accurate and fully applicable.
+> Public Pool. If a feature, setting, or behavior is not mentioned here,
+> the upstream documentation is accurate and fully applicable.
 
 [Public Pool](https://github.com/benjamin-wilson/public-pool) is an open source Bitcoin mining pool with a Stratum server and web UI.
 
@@ -213,7 +213,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development wo
 
 ```yaml
 package_id: public-pool
-upstream_version: 0.2.5
 image: custom (dockerBuild from upstream source)
 architectures: [x86_64, aarch64]
 volumes:
