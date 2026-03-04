@@ -7,8 +7,8 @@ export const setStratumDisplayAddress = sdk.setupOnInit(async (effects) => {
       effects,
       'stratum',
       (iface) =>
-        iface?.addressInfo
-          ?.filter({
+        iface?.addressInfo?.nonLocal
+          .filter({
             visibility: 'private',
             kind: 'ipv4',
           })
