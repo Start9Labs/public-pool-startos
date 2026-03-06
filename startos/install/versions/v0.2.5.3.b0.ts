@@ -3,8 +3,8 @@ import { storeJson } from 'bitcoind-startos/startos/fileModels/store.json'
 import { readFile, rm } from 'fs/promises'
 import { envFile } from '../../file-models/env'
 
-export const v_0_2_5_2_b0 = VersionInfo.of({
-  version: '0.2.5:2-beta.0',
+export const v_0_2_5_3_b0 = VersionInfo.of({
+  version: '0.2.5:3-beta.0',
   releaseNotes: {
     en_US: 'Revamped for StartOS 0.4.0',
     es_ES: 'Renovado para StartOS 0.4.0',
