@@ -1,8 +1,8 @@
 id: public-pool
 title: "Public Pool"
-version: 0.2.5
+version: 0.2.5.1
 release-notes: |  
-  * Update to the latest public-pool/public-pool-ui version
+  * Bump public-pool-ui: CSS fix for stratum URL display on smaller screens, added NerdEko/NerdOct miner device icons
 license: GPL
 wrapper-repo: "https://github.com/remcoros/public-pool-startos"
 upstream-repo: "https://github.com/benjamin-wilson/public-pool"
