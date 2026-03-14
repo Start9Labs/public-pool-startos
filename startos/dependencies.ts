@@ -1,8 +1,8 @@
+import { autoconfig } from 'bitcoind-startos/startos/actions/config/autoconfig'
 import { sdk } from './sdk'
-import { otherConfig } from 'bitcoind-startos/startos/actions/config/other'
 
 export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
-  await sdk.action.createTask(effects, 'bitcoind', otherConfig, 'critical', {
+  await sdk.action.createTask(effects, 'bitcoind', autoconfig, 'critical', {
     input: { kind: 'partial', value: { zmqEnabled: true } },
     reason: 'Must enable ZMQ in Bitcoin to use it with Public Pool',
     when: { condition: 'input-not-matches', once: false },
