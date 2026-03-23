@@ -10,7 +10,7 @@
 > Public Pool. If a feature, setting, or behavior is not mentioned here,
 > the upstream documentation is accurate and fully applicable.
 
-[Public Pool](https://github.com/benjamin-wilson/public-pool) is an open source Bitcoin mining pool with a Stratum server and web UI.
+[Public Pool](https://github.com/benjamin-wilson/public-pool) is an open-source Bitcoin mining pool with a Stratum server and web UI dashboard.
 
 ---
 
@@ -38,9 +38,14 @@
 |----------|-------|
 | Image | Custom Dockerfile (multi-stage build from upstream source) |
 | Base | `node:20-bookworm-slim` + nginx |
-| Architectures | x86_64, aarch64 (emulated) |
+| Architectures | x86_64, aarch64 |
 
-The image is built from source, compiling both the backend (public-pool) and frontend (public-pool-ui) with StartOS-specific patches applied to the UI.
+The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)) with StartOS-specific patches applied to the UI for display URL injection.
+
+Two subcontainers run from the same image:
+
+- **Stratum** — Node.js backend serving the Stratum mining protocol and API
+- **UI** — nginx serving the static web dashboard and proxying API requests
 
 ---
 
@@ -53,9 +58,8 @@ The image is built from source, compiling both the backend (public-pool) and fro
 **Key paths on the `main` volume:**
 
 - `.env` — environment configuration file
-- `store.json` — persists Stratum display address
-- `mainnet/` — mainnet database (mounted to `/public-pool/DB`)
-- `testnet/` — testnet database (mounted to `/public-pool/DB`)
+- `store.json` — persists Stratum display address selection
+- `mainnet/` — mining database (mounted to `/public-pool/DB`)
 
 **Bitcoin dependency mount:**
 
@@ -70,14 +74,13 @@ The image is built from source, compiling both the backend (public-pool) and fro
 | Installation | Docker Compose | Install from marketplace |
 | Configuration | Edit `.env` file manually | Auto-configured, tunable via action |
 | Bitcoin Core | Manual RPC setup | Auto-configured via dependency |
-| Network | Single network only | Switchable between mainnet and testnet |
 
 **First-run steps:**
 
-1. Ensure Bitcoin Core (or Bitcoin Testnet) is installed
+1. Ensure Bitcoin Core is installed with ZMQ enabled
 2. Install Public Pool from the StartOS marketplace
 3. Optionally run "Configure" to set a custom pool identifier
-4. Point your mining hardware at the Stratum interface
+4. Point your mining hardware at the Stratum interface (port 3333)
 
 ---
 
@@ -87,22 +90,21 @@ The image is built from source, compiling both the backend (public-pool) and fro
 
 | Setting | Value | Purpose |
 |---------|-------|---------|
-| `BITCOIN_RPC_URL` | `http://bitcoind.startos` | Bitcoin RPC (mainnet) |
-| `BITCOIN_RPC_PORT` | `8332` / `48332` | RPC port (mainnet/testnet) |
+| `BITCOIN_RPC_URL` | `http://bitcoind.startos` | Bitcoin RPC endpoint |
+| `BITCOIN_RPC_PORT` | `8332` | RPC port |
 | `BITCOIN_RPC_COOKIEFILE` | `/mnt/bitcoind/.cookie` | Cookie auth |
-| `BITCOIN_ZMQ_HOST` | `tcp://bitcoind.startos:28332` | ZMQ notifications |
+| `BITCOIN_ZMQ_HOST` | `tcp://bitcoind.startos:28332` | ZMQ block notifications |
 | `BITCOIN_RPC_TIMEOUT` | `10000` | RPC timeout (ms) |
-| `API_PORT` | `3334` | Internal API port |
+| `API_PORT` | `3334` | Internal API port (proxied by nginx) |
 | `STRATUM_PORT` | `3333` | Stratum protocol port |
-| `API_SECURE` | `false` | API security |
+| `API_SECURE` | `false` | No SSL for internal API |
 
 ### Configurable via Actions
 
 | Setting | Action | Default | Purpose |
 |---------|--------|---------|---------|
 | Pool Identifier | Configure | `Public-Pool` | Coinbase transaction identifier |
-| Server Display URL | Configure | Auto-detected IPv4 | Homepage display address |
-| Network | Switch Network | mainnet | Toggle mainnet/testnet |
+| Server Display URL | Configure | Auto-detected IPv4 | Address shown on pool homepage |
 
 ---
 
@@ -111,14 +113,9 @@ The image is built from source, compiling both the backend (public-pool) and fro
 | Interface | Port | Protocol | Purpose |
 |-----------|------|----------|---------|
 | Web UI | 80 | HTTP | Pool dashboard and statistics |
-| Stratum Server | 3333 | TCP | Mining protocol |
+| Stratum Server | 3333 | TCP (raw) | Mining protocol |
 
-**Access methods (StartOS 0.4.0):**
-
-- LAN IP with unique port
-- `<hostname>.local` with unique port
-- Tor `.onion` address
-- Custom domains (if configured)
+Both interfaces share the same domain. The Stratum server uses raw TCP (no SSL wrapper) and advertises a preferred external port of 3333.
 
 ---
 
@@ -136,29 +133,17 @@ The image is built from source, compiling both the backend (public-pool) and fro
 **Inputs:**
 
 - **Pool Identifier** — ASCII text included in Coinbase transactions (max 100 chars)
-- **Server Display URL** — the address shown on your pool's homepage (auto-populated from available interfaces)
-
-### Switch Network
-
-| Property | Value |
-|----------|-------|
-| ID | `set-network` |
-| Visibility | Enabled |
-| Availability | Any status |
-| Purpose | Toggle between mainnet and testnet |
-
-Dynamically shows "Switch to testnet" or "Switch to mainnet" based on current configuration. Includes a confirmation warning.
+- **Server Display URL** — the address shown on your pool's homepage (auto-populated from available Stratum interface addresses)
 
 ---
 
 ## Dependencies
 
-| Dependency | Required | Version | Purpose | Auto-Config |
-|------------|----------|---------|---------|-------------|
-| Bitcoin Core | Optional | >=29.1 | Mainnet mining | ZMQ enabled |
-| Bitcoin Testnet | Optional | >=29.1 | Testnet mining | ZMQ enabled |
+| Dependency | Required | Purpose | Auto-Config |
+|------------|----------|---------|-------------|
+| Bitcoin Core | **Yes** | Block notifications and RPC | ZMQ enabled |
 
-One of the two Bitcoin dependencies is required depending on the selected network. StartOS creates a critical task to enable ZMQ on the active Bitcoin node.
+StartOS creates a critical task to enable ZMQ on Bitcoin Core when Public Pool is installed. The pool connects via cookie authentication from the mounted dependency volume.
 
 ---
 
@@ -186,9 +171,9 @@ One of the two Bitcoin dependencies is required depending on the selected networ
 
 ## Limitations and Differences
 
-1. **Custom Docker image** — built from source with UI patches for display URL injection
-2. **Single network** — cannot mine on mainnet and testnet simultaneously (switchable via action)
-3. **Architecture emulation** — aarch64 builds use emulation
+1. **Custom Docker image** — built from source with UI patches for Stratum display URL injection
+2. **Mainnet only** — no testnet support
+3. **Fixed Bitcoin connection** — must use the StartOS Bitcoin Core dependency; cannot connect to external Bitcoin nodes
 
 ---
 
@@ -219,24 +204,17 @@ volumes:
   main:
     .env: environment configuration
     store.json: stratum display address
-    mainnet/: mainnet database
-    testnet/: testnet database
+    mainnet/: mining database
 ports:
   ui: 80
   stratum: 3333
   api: 3334 (internal)
 dependencies:
   bitcoind:
-    required: false (one of bitcoind or bitcoind-testnet required)
-    min_version: ">=29.1"
-    enforced_config: [zmqEnabled=true]
-  bitcoind-testnet:
-    required: false
-    min_version: ">=29.1"
+    required: true
     enforced_config: [zmqEnabled=true]
 actions:
   - config (enabled, any)
-  - set-network (enabled, any)
 health_checks:
   - stratum: port_listening 3333 (15s grace)
   - ui: port_listening 80
@@ -247,6 +225,4 @@ startos_managed_config:
   API_PORT: "3334"
   STRATUM_PORT: "3333"
   API_SECURE: "false"
-not_available:
-  - Simultaneous mainnet and testnet mining
 ```

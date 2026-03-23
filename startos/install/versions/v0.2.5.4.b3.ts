@@ -3,14 +3,14 @@ import { storeJson } from 'bitcoind-startos/startos/fileModels/store.json'
 import { readFile, rm } from 'fs/promises'
 import { envFile } from '../../file-models/env'
 
-export const v_0_2_5_4_b2 = VersionInfo.of({
-  version: '0.2.5:4-beta.2',
+export const v_0_2_5_4_b3 = VersionInfo.of({
+  version: '0.2.5:4-beta.3',
   releaseNotes: {
-    en_US: 'Update to StartOS SDK beta.60',
-    es_ES: 'Actualización a StartOS SDK beta.60',
-    de_DE: 'Update auf StartOS SDK beta.60',
-    pl_PL: 'Aktualizacja do StartOS SDK beta.60',
-    fr_FR: 'Mise à jour vers StartOS SDK beta.60',
+    en_US: 'Update to StartOS SDK beta.65',
+    es_ES: 'Actualización a StartOS SDK beta.65',
+    de_DE: 'Update auf StartOS SDK beta.65',
+    pl_PL: 'Aktualizacja do StartOS SDK beta.65',
+    fr_FR: 'Mise à jour vers StartOS SDK beta.65',
   },
   migrations: {
     up: async ({ effects }) => {
