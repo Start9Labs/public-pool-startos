@@ -8,9 +8,9 @@ import { seedFiles } from './seedFiles'
 import { setStratumDisplayAddress } from './setStratumDisplayAddress'
 
 export const init = sdk.setupInit(
-  seedFiles,
   restoreInit,
   versionGraph,
+  seedFiles,
   setInterfaces,
   setDependencies,
   actions,
