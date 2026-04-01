@@ -6,7 +6,7 @@ export const manifest = setupManifest({
   title: 'Public Pool',
   license: 'GPL',
   packageRepo:
-    'https://github.com/Start9Labs/public-pool-startos/tree/update/040',
+    'https://github.com/Start9Labs/public-pool-startos',
   upstreamRepo: 'https://github.com/benjamin-wilson/public-pool',
   marketingUrl: 'https://web.public-pool.io',
   donationUrl: 'https://web.public-pool.io',
