@@ -1,12 +1,11 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { short, long, bitcoindDescription } from './i18n'
+import { bitcoindDescription, long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'public-pool',
   title: 'Public Pool',
   license: 'GPL',
-  packageRepo:
-    'https://github.com/Start9Labs/public-pool-startos',
+  packageRepo: 'https://github.com/Start9Labs/public-pool-startos',
   upstreamRepo: 'https://github.com/benjamin-wilson/public-pool',
   marketingUrl: 'https://web.public-pool.io',
   donationUrl: 'https://web.public-pool.io',
@@ -26,8 +25,8 @@ export const manifest = setupManifest({
       description: bitcoindDescription,
       optional: false,
       metadata: {
-        title: 'A Bitcoin Full Node',
-        icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoind-startos/refs/heads/master/icon.svg',
+        title: 'Bitcoin',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/feec0b1dae42961a257948fe39b40caf8672fce1/dep-icon.svg',
       },
     },
   },
