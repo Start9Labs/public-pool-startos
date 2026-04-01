@@ -1,69 +1,228 @@
 <p align="center">
-  <img src="icon.png" alt="Project Logo" width="21%">
+  <img src="icon.svg" alt="Public Pool Logo" width="21%">
 </p>
 
-# Public Pool for StartOS
+# Public Pool on StartOS
 
-[Public Pool](https://github.com/benjamin-wilson/public-pool) is a fully open source solo Bitcoin mining pool.
+> **Upstream docs:** <https://github.com/benjamin-wilson/public-pool#readme>
+>
+> Everything not listed in this document should behave the same as upstream
+> Public Pool. If a feature, setting, or behavior is not mentioned here,
+> the upstream documentation is accurate and fully applicable.
 
-This repository creates the `s9pk` package that is installed to run Public Pool on [StartOS](https://github.com/Start9Labs/start-os/). Learn more about service packaging in the [Developer Docs](https://start9.com/latest/developer-docs/).
+[Public Pool](https://github.com/benjamin-wilson/public-pool) is an open-source Bitcoin mining pool with a Stratum server and web UI dashboard.
+
+---
+
+## Table of Contents
+
+- [Image and Container Runtime](#image-and-container-runtime)
+- [Volume and Data Layout](#volume-and-data-layout)
+- [Installation and First-Run Flow](#installation-and-first-run-flow)
+- [Configuration Management](#configuration-management)
+- [Network Access and Interfaces](#network-access-and-interfaces)
+- [Actions (StartOS UI)](#actions-startos-ui)
+- [Dependencies](#dependencies)
+- [Backups and Restore](#backups-and-restore)
+- [Health Checks](#health-checks)
+- [Limitations and Differences](#limitations-and-differences)
+- [What Is Unchanged from Upstream](#what-is-unchanged-from-upstream)
+- [Contributing](#contributing)
+- [Quick Reference for AI Consumers](#quick-reference-for-ai-consumers)
+
+---
+
+## Image and Container Runtime
+
+| Property | Value |
+|----------|-------|
+| Image | Custom Dockerfile (multi-stage build from upstream source) |
+| Base | `node:20-bookworm-slim` + nginx |
+| Architectures | x86_64, aarch64 |
+
+The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)) with StartOS-specific patches applied to the UI for display URL injection.
+
+Two subcontainers run from the same image:
+
+- **Stratum** — Node.js backend serving the Stratum mining protocol and API
+- **UI** — nginx serving the static web dashboard and proxying API requests
+
+---
+
+## Volume and Data Layout
+
+| Volume | Mount Point | Purpose |
+|--------|-------------|---------|
+| `main` | various | All Public Pool data |
+
+**Key paths on the `main` volume:**
+
+- `.env` — environment configuration file
+- `store.json` — persists Stratum display address selection
+- `mainnet/` — mining database (mounted to `/public-pool/DB`)
+
+**Bitcoin dependency mount:**
+
+- `/mnt/bitcoind` — Bitcoin Core volume (read-only, for cookie auth)
+
+---
+
+## Installation and First-Run Flow
+
+| Step | Upstream | StartOS |
+|------|----------|---------|
+| Installation | Docker Compose | Install from marketplace |
+| Configuration | Edit `.env` file manually | Auto-configured, tunable via action |
+| Bitcoin Core | Manual RPC setup | Auto-configured via dependency |
+
+**First-run steps:**
+
+1. Ensure Bitcoin Core is installed with ZMQ enabled
+2. Install Public Pool from the StartOS marketplace
+3. Optionally run "Configure" to set a custom pool identifier
+4. Point your mining hardware at the Stratum interface (port 3333)
+
+---
+
+## Configuration Management
+
+### Auto-Configured by StartOS
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `BITCOIN_RPC_URL` | `http://bitcoind.startos` | Bitcoin RPC endpoint |
+| `BITCOIN_RPC_PORT` | `8332` | RPC port |
+| `BITCOIN_RPC_COOKIEFILE` | `/mnt/bitcoind/.cookie` | Cookie auth |
+| `BITCOIN_ZMQ_HOST` | `tcp://bitcoind.startos:28332` | ZMQ block notifications |
+| `BITCOIN_RPC_TIMEOUT` | `10000` | RPC timeout (ms) |
+| `API_PORT` | `3334` | Internal API port (proxied by nginx) |
+| `STRATUM_PORT` | `3333` | Stratum protocol port |
+| `API_SECURE` | `false` | No SSL for internal API |
+
+### Configurable via Actions
+
+| Setting | Action | Default | Purpose |
+|---------|--------|---------|---------|
+| Pool Identifier | Configure | `Public-Pool` | Coinbase transaction identifier |
+| Server Display URL | Configure | Auto-detected IPv4 | Address shown on pool homepage |
+
+---
+
+## Network Access and Interfaces
+
+| Interface | Port | Protocol | Purpose |
+|-----------|------|----------|---------|
+| Web UI | 80 | HTTP | Pool dashboard and statistics |
+| Stratum Server | 3333 | TCP (raw) | Mining protocol |
+
+Both interfaces share the same domain. The Stratum server uses raw TCP (no SSL wrapper) and advertises a preferred external port of 3333.
+
+---
+
+## Actions (StartOS UI)
+
+### Configure
+
+| Property | Value |
+|----------|-------|
+| ID | `config` |
+| Visibility | Enabled |
+| Availability | Any status |
+| Purpose | Set pool identifier and display URL |
+
+**Inputs:**
+
+- **Pool Identifier** — ASCII text included in Coinbase transactions (max 100 chars)
+- **Server Display URL** — the address shown on your pool's homepage (auto-populated from available Stratum interface addresses)
+
+---
 
 ## Dependencies
 
-Install the system dependencies below to build this project by following the instructions in the provided links. You can also find detailed steps to setup your environment in the service packaging [documentation](https://docs.start9.com/latest/developer-docs/packaging#development-environment).
+| Dependency | Required | Purpose | Auto-Config |
+|------------|----------|---------|-------------|
+| Bitcoin Core | **Yes** | Block notifications and RPC | ZMQ enabled |
 
-- [docker](https://docs.docker.com/get-docker)
-- [docker-buildx](https://docs.docker.com/buildx/working-with-buildx/)
-- [yq](https://mikefarah.gitbook.io/yq)
-- [deno](https://deno.land/)
-- [make](https://www.gnu.org/software/make/)
-- [start-sdk](https://github.com/Start9Labs/start-os/tree/sdk)
+StartOS creates a critical task to enable ZMQ on Bitcoin Core when Public Pool is installed. The pool connects via cookie authentication from the mounted dependency volume.
 
-## Cloning
+---
 
-Clone the Webtop package repository locally.
+## Backups and Restore
 
+**Included in backup:**
+
+- `main` volume — configuration, database, and state
+
+**Restore behavior:**
+
+- All mining history and configuration restored
+- Service resumes normal operation
+
+---
+
+## Health Checks
+
+| Check | Display Name | Grace Period | Messages |
+|-------|--------------|-------------|----------|
+| Stratum | Stratum Server | 15s | Ready / Not ready |
+| Web UI | Web Interface | Default | Ready / Not ready |
+
+---
+
+## Limitations and Differences
+
+1. **Custom Docker image** — built from source with UI patches for Stratum display URL injection
+2. **Mainnet only** — no testnet support
+3. **Fixed Bitcoin connection** — must use the StartOS Bitcoin Core dependency; cannot connect to external Bitcoin nodes
+
+---
+
+## What Is Unchanged from Upstream
+
+- Full Stratum protocol support
+- Mining statistics and dashboard
+- Block discovery tracking
+- Worker management
+- Coinbase transaction customization
+- All web UI features
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development workflow.
+
+---
+
+## Quick Reference for AI Consumers
+
+```yaml
+package_id: public-pool
+image: custom (dockerBuild from upstream source)
+architectures: [x86_64, aarch64]
+volumes:
+  main:
+    .env: environment configuration
+    store.json: stratum display address
+    mainnet/: mining database
+ports:
+  ui: 80
+  stratum: 3333
+  api: 3334 (internal)
+dependencies:
+  bitcoind:
+    required: true
+    enforced_config: [zmqEnabled=true]
+actions:
+  - config (enabled, any)
+health_checks:
+  - stratum: port_listening 3333 (15s grace)
+  - ui: port_listening 80
+backup_volumes:
+  - main
+startos_managed_config:
+  BITCOIN_RPC_TIMEOUT: "10000"
+  API_PORT: "3334"
+  STRATUM_PORT: "3333"
+  API_SECURE: "false"
 ```
-git clone git@github.com:remcoros/public-pool-startos.git
-cd public-pool-startos
-```
-
-## Building
-
-To build the service as a universal package, run the following command:
-
-```
-make
-```
-
-Alternatively the package can be built for individual architectures by specifying the architecture as follows:
-
-```
-make x86
-```
-
-or
-
-```
-make arm
-```
-
-## Installing (on StartOS)
-
-Before installation, define `host: https://server-name.local` in your `~/.embassy/config.yaml` config file then run the following commands to determine successful install:
-
-> Change server-name.local to your Start9 server address
-
-```
-start-cli auth login
-#Enter your StartOS password
-make install
-```
-
-**Tip:** You can also install the public-pool.s9pk by sideloading it under the **StartOS > System > Sideload a Service** section.
-
-## Verify Install
-
-Go to your StartOS Services page, select **Public Pool**, configure and start the service.
-
-**Done!**

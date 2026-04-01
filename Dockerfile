@@ -2,12 +2,7 @@ FROM node:20-bookworm-slim AS build
 
 # Public Pool repo does not use versions/tags yet, point directly to commit sha
 ARG PUBLIC_POOL_SHA=b971e9ce4ccd23ae98536d57dcf63657ade7919f
-ARG PUBLIC_POOL_UI_SHA=00954f46866cc23c1b04d34a13ffb4f2cc8f9bbb
-
-# these are specified in Makefile
-ARG PLATFORM
-ARG YQ_VERSION
-ARG YQ_SHA
+ARG PUBLIC_POOL_UI_SHA=1c0b2d93e3ce0a81d4faa7b1d444ace936e3f63d
 
 RUN \
     apt-get update && \
@@ -16,12 +11,6 @@ RUN \
     apt clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN \
-    # install yq
-    wget -qO /tmp/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${PLATFORM} && \
-    echo "${YQ_SHA} /tmp/yq" | sha256sum -c || exit 1 && \ 
-    mv /tmp/yq /usr/local/bin/yq && chmod +x /usr/local/bin/yq
-
 WORKDIR /build
 
 RUN \
@@ -29,16 +18,11 @@ RUN \
     cd public-pool && \
     git checkout ${PUBLIC_POOL_SHA}
 
-# apply patch for rpc-bitcoin (see: https://github.com/vansergen/rpc-bitcoin/pull/65)
-COPY patches/rpc-bitcoin+2.0.0.patch /build/public-pool/patches/rpc-bitcoin+2.0.0.patch
-
 RUN \
     cd public-pool && \
-    npm ci && \
-    # apply patch for rpc-bitcoin (see: https://github.com/vansergen/rpc-bitcoin/pull/65)
-    npm i patch-package && \
-    npx patch-package && \
-    npm run build
+    npm ci --no-audit --no-fund && \
+    NODE_ENV=production npm run build && \
+    npm prune --production
 
 RUN \
     git clone https://github.com/benjamin-wilson/public-pool-ui.git && \
@@ -46,19 +30,22 @@ RUN \
     git checkout ${PUBLIC_POOL_UI_SHA}
 
 # patch environment.prod.ts for self-hosting
-COPY patches/environment.prod.ts /build/public-pool-ui/src/environments/environment.prod.ts
-COPY patches/public-pool-ui.patch /build/public-pool-ui/public-pool-ui.patch
+COPY assets/patches/environment.prod.ts /build/public-pool-ui/src/environments/environment.prod.ts
+COPY assets/patches/public-pool-ui.patch /build/public-pool-ui/public-pool-ui.patch
 
 RUN \
     cd public-pool-ui && \
     git apply public-pool-ui.patch && \
-    npm ci && \
-    npm run build
+    npm ci --no-audit --no-fund && \
+    NODE_ENV=production npm run build && \
+    npm prune --production
 
 # main container
 FROM node:20-bookworm-slim
 
 ENV NODE_ENV=production
+
+WORKDIR /public-pool
 
 RUN \
     apt-get update && \
@@ -67,14 +54,10 @@ RUN \
     apt clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY --from=build /usr/local/bin/yq /usr/local/bin/yq
-COPY assets/nginx.conf /etc/nginx/sites-available/default
+COPY ./assets/nginx.conf /etc/nginx/sites-available/default
 
-WORKDIR /public-pool
 COPY --from=build /build/public-pool/node_modules ./node_modules
 COPY --from=build /build/public-pool/dist ./dist
 
 WORKDIR /var/www/html
 COPY --from=build /build/public-pool-ui/dist/public-pool-ui .
-
-COPY docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
