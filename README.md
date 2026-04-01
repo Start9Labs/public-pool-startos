@@ -139,9 +139,14 @@ Both interfaces share the same domain. The Stratum server uses raw TCP (no SSL w
 
 ## Dependencies
 
-| Dependency | Required | Purpose | Auto-Config |
-|------------|----------|---------|-------------|
-| Bitcoin Core | **Yes** | Block notifications and RPC | ZMQ enabled |
+| Property | Value |
+|----------|-------|
+| **Service** | Bitcoin Core (`bitcoind`) |
+| **Required** | Yes |
+| **Version constraint** | `>=28.3` |
+| **Health checks** | `bitcoind` must pass before Public Pool starts |
+| **Mounted volumes** | `bitcoind:main` at `/mnt/bitcoind` (read-only) — used for cookie authentication |
+| **Purpose** | Block notifications via ZMQ and RPC for mining |
 
 StartOS creates a critical task to enable ZMQ on Bitcoin Core when Public Pool is installed. The pool connects via cookie authentication from the mounted dependency volume.
 
@@ -164,8 +169,8 @@ StartOS creates a critical task to enable ZMQ on Bitcoin Core when Public Pool i
 
 | Check | Display Name | Grace Period | Messages |
 |-------|--------------|-------------|----------|
-| Stratum | Stratum Server | 15s | Ready / Not ready |
-| Web UI | Web Interface | Default | Ready / Not ready |
+| Stratum | "Stratum Server" | 15s | "Stratum server is ready" / "Stratum server is not ready" |
+| Web UI | "Web Interface" | Default | "The web interface is ready" / "The web interface is not ready" |
 
 ---
 
@@ -199,30 +204,26 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development wo
 ```yaml
 package_id: public-pool
 image: custom (dockerBuild from upstream source)
-architectures: [x86_64, aarch64]
+architectures:
+  - x86_64
+  - aarch64
 volumes:
-  main:
-    .env: environment configuration
-    store.json: stratum display address
-    mainnet/: mining database
+  main: various (.env, store.json, mainnet/)
 ports:
   ui: 80
   stratum: 3333
-  api: 3334 (internal)
 dependencies:
-  bitcoind:
-    required: true
-    enforced_config: [zmqEnabled=true]
+  - bitcoind
+startos_managed_env_vars:
+  - BITCOIN_RPC_URL
+  - BITCOIN_RPC_PORT
+  - BITCOIN_RPC_COOKIEFILE
+  - BITCOIN_ZMQ_HOST
+  - BITCOIN_RPC_TIMEOUT
+  - API_PORT
+  - STRATUM_PORT
+  - API_SECURE
+  - POOL_IDENTIFIER
 actions:
-  - config (enabled, any)
-health_checks:
-  - stratum: port_listening 3333 (15s grace)
-  - ui: port_listening 80
-backup_volumes:
-  - main
-startos_managed_config:
-  BITCOIN_RPC_TIMEOUT: "10000"
-  API_PORT: "3334"
-  STRATUM_PORT: "3333"
-  API_SECURE: "false"
+  - config
 ```
