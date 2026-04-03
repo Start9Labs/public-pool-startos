@@ -19,6 +19,7 @@ const shape = z.object({
   BITCOIN_ZMQ_HOST: z
     .literal(`tcp://${BITCOIN_RPC_HOST}:28332`)
     .catch(`tcp://${BITCOIN_RPC_HOST}:28332`),
+  NETWORK: z.literal('mainnet').catch('mainnet'),
 })
 
 export type EnvType = z.infer<typeof shape>
