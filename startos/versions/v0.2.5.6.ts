@@ -2,14 +2,14 @@ import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
-export const v_0_2_5_5 = VersionInfo.of({
-  version: '0.2.5:5',
+export const v_0_2_5_6 = VersionInfo.of({
+  version: '0.2.5:6',
   releaseNotes: {
-    en_US: 'Update to StartOS SDK beta.65',
-    es_ES: 'Actualización a StartOS SDK beta.65',
-    de_DE: 'Update auf StartOS SDK beta.65',
-    pl_PL: 'Aktualizacja do StartOS SDK beta.65',
-    fr_FR: 'Mise à jour vers StartOS SDK beta.65',
+    en_US: 'Internal updates (start-sdk 1.2.0)',
+    es_ES: 'Actualizaciones internas (start-sdk 1.2.0)',
+    de_DE: 'Interne Aktualisierungen (start-sdk 1.2.0)',
+    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 1.2.0)',
+    fr_FR: 'Mises à jour internes (start-sdk 1.2.0)',
   },
   migrations: {
     up: async ({ effects }) => {

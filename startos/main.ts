@@ -1,5 +1,6 @@
 import { sdk } from './sdk'
 import { FileHelper } from '@start9labs/start-sdk'
+import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import { bitcoindMountpoint, stratumPort, uiPort } from './utils'
 import { store } from './file-models/store.json'
 import { i18n } from './i18n'
@@ -28,7 +29,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
         readonly: true,
         type: 'file',
       })
-      .mountDependency({
+      .mountDependency<typeof bitcoinManifest>({
         dependencyId: 'bitcoind',
         volumeId: 'main',
         subpath: null,
