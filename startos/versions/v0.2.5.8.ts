@@ -2,14 +2,14 @@ import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
-export const v_0_2_5_7 = VersionInfo.of({
-  version: '0.2.5:7',
+export const v_0_2_5_8 = VersionInfo.of({
+  version: '0.2.5:8',
   releaseNotes: {
-    en_US: 'Internal updates (start-sdk 1.3.3)',
-    es_ES: 'Actualizaciones internas (start-sdk 1.3.3)',
-    de_DE: 'Interne Aktualisierungen (start-sdk 1.3.3)',
-    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 1.3.3)',
-    fr_FR: 'Mises à jour internes (start-sdk 1.3.3)',
+    en_US: 'Internal updates (start-sdk 1.5.1)',
+    es_ES: 'Actualizaciones internas (start-sdk 1.5.1)',
+    de_DE: 'Interne Aktualisierungen (start-sdk 1.5.1)',
+    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 1.5.1)',
+    fr_FR: 'Mises à jour internes (start-sdk 1.5.1)',
   },
   migrations: {
     up: async ({ effects }) => {
