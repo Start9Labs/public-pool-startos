@@ -37,7 +37,7 @@
 | Property | Value |
 |----------|-------|
 | Image | Custom Dockerfile (multi-stage build from upstream source) |
-| Base | `node:20-bookworm-slim` + nginx |
+| Base | `node:22-bookworm-slim` + nginx |
 | Architectures | x86_64, aarch64 |
 
 The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)) with StartOS-specific patches applied to the UI for display URL injection.
