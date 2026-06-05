@@ -3,23 +3,18 @@ import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:8',
+  version: '0.2.5:9',
   releaseNotes: {
-    en_US: `**Internal**
-
-- Bump start-sdk to 1.5.0`,
-    es_ES: `**Interno**
-
-- Actualización de start-sdk a 1.5.0`,
-    de_DE: `**Intern**
-
-- Aktualisierung von start-sdk auf 1.5.0`,
-    pl_PL: `**Wewnętrzne**
-
-- Aktualizacja start-sdk do 1.5.0`,
-    fr_FR: `**Interne**
-
-- Mise à jour de start-sdk vers 1.5.0`,
+    en_US:
+      'Update Public Pool to the latest upstream (NestJS 11, SQLite improvements, stratum fixes); build on Node 22.',
+    es_ES:
+      'Actualización de Public Pool a la última versión upstream (NestJS 11, mejoras de SQLite, correcciones de stratum); compilación en Node 22.',
+    de_DE:
+      'Aktualisierung von Public Pool auf den neuesten Upstream-Stand (NestJS 11, SQLite-Verbesserungen, Stratum-Korrekturen); Build mit Node 22.',
+    pl_PL:
+      'Aktualizacja Public Pool do najnowszej wersji upstream (NestJS 11, ulepszenia SQLite, poprawki stratum); kompilacja na Node 22.',
+    fr_FR:
+      'Mise à jour de Public Pool vers la dernière version upstream (NestJS 11, améliorations SQLite, corrections stratum) ; compilation sous Node 22.',
   },
   migrations: {
     up: async ({ effects }) => {
