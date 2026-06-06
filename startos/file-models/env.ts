@@ -8,7 +8,7 @@ const shape = z.object({
   API_PORT: z.literal('3334').catch('3334'),
   STRATUM_PORT: z.literal('3333').catch('3333'),
   API_SECURE: z.literal('false').catch('false'),
-  POOL_IDENTIFIER: z.string().catch('Public-Pool'),
+  POOL_IDENTIFIER: z.string().catch('Public-Pool on StartOS'),
   BITCOIN_RPC_URL: z
     .literal(`http://${BITCOIN_RPC_HOST}`)
     .catch(`http://${BITCOIN_RPC_HOST}`),
