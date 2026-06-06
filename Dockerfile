@@ -2,7 +2,7 @@ FROM node:22-bookworm-slim AS build
 
 # Public Pool repo does not use versions/tags yet, point directly to commit sha
 ARG PUBLIC_POOL_SHA=96a9202c11de2c6fc8d41155e2e779912a476dc7
-ARG PUBLIC_POOL_UI_SHA=1c0b2d93e3ce0a81d4faa7b1d444ace936e3f63d
+ARG PUBLIC_POOL_UI_SHA=5f730f4f34846020c644ec96a9bd2b41dba847b9
 
 RUN \
     apt-get update && \

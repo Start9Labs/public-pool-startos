@@ -3,18 +3,23 @@ import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:9',
+  version: '0.2.5:10',
   releaseNotes: {
-    en_US:
-      'Update Public Pool to the latest upstream (NestJS 11, SQLite improvements, stratum fixes); build on Node 22.',
-    es_ES:
-      'Actualización de Public Pool a la última versión upstream (NestJS 11, mejoras de SQLite, correcciones de stratum); compilación en Node 22.',
-    de_DE:
-      'Aktualisierung von Public Pool auf den neuesten Upstream-Stand (NestJS 11, SQLite-Verbesserungen, Stratum-Korrekturen); Build mit Node 22.',
-    pl_PL:
-      'Aktualizacja Public Pool do najnowszej wersji upstream (NestJS 11, ulepszenia SQLite, poprawki stratum); kompilacja na Node 22.',
-    fr_FR:
-      'Mise à jour de Public Pool vers la dernière version upstream (NestJS 11, améliorations SQLite, corrections stratum) ; compilation sous Node 22.',
+    en_US: `- Update the Public Pool UI to the latest upstream (runtime configuration support).
+- Exclude the LXC bridge address from the Server Display URL options.
+- Default pool identifier is now "Public-Pool on StartOS".`,
+    es_ES: `- Actualización de la interfaz de Public Pool a la última versión upstream (compatibilidad con configuración en tiempo de ejecución).
+- Se excluye la dirección del puente LXC de las opciones de URL de visualización del servidor.
+- El identificador de pool predeterminado ahora es "Public-Pool on StartOS".`,
+    de_DE: `- Aktualisierung der Public-Pool-Oberfläche auf den neuesten Upstream-Stand (Unterstützung für Laufzeitkonfiguration).
+- Die LXC-Bridge-Adresse wird aus den Optionen für die Server-Anzeige-URL ausgeschlossen.
+- Die Standard-Pool-Kennung lautet jetzt „Public-Pool on StartOS".`,
+    pl_PL: `- Aktualizacja interfejsu Public Pool do najnowszej wersji upstream (obsługa konfiguracji w czasie działania).
+- Wykluczenie adresu mostka LXC z opcji adresu URL wyświetlania serwera.
+- Domyślny identyfikator puli to teraz „Public-Pool on StartOS".`,
+    fr_FR: `- Mise à jour de l'interface de Public Pool vers la dernière version upstream (prise en charge de la configuration à l'exécution).
+- Exclusion de l'adresse du pont LXC des options d'URL d'affichage du serveur.
+- L'identifiant de pool par défaut est désormais « Public-Pool on StartOS ».`,
   },
   migrations: {
     up: async ({ effects }) => {

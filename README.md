@@ -103,7 +103,7 @@ Two subcontainers run from the same image:
 
 | Setting | Action | Default | Purpose |
 |---------|--------|---------|---------|
-| Pool Identifier | Configure | `Public-Pool` | Coinbase transaction identifier |
+| Pool Identifier | Configure | `Public-Pool on StartOS` | Coinbase transaction identifier |
 | Server Display URL | Configure | Auto-detected IPv4 | Address shown on pool homepage |
 
 ---

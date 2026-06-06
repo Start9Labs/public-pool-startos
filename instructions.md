@@ -15,7 +15,7 @@
 1. Install Bitcoin Core first. Public Pool requires it and will run the **Auto Configure** task on Bitcoin Core to enable ZMQ before it can start.
 2. Install Public Pool. It will start automatically once Bitcoin Core is running and ZMQ is enabled.
 3. Open the **Configure** action and set:
-   - **Pool Identifier** — the string that appears in your coinbase transactions (default `Public-Pool`).
+   - **Pool Identifier** — the string that appears in your coinbase transactions (default `Public-Pool on StartOS`).
    - **Server Display URL** — which of the Stratum interface's addresses to show on the dashboard as the connection URL for miners.
 4. Point your mining hardware at the Stratum server. See **Connecting miners** below — on StartOS today the Stratum port needs a one-time host-level forward.
 

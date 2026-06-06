@@ -10,8 +10,8 @@ export const inputSpec = InputSpec.of({
     name: 'Pool Identifier',
     description: 'The pool identifier to include in the Coinbase transactions',
     required: true,
-    default: 'Public-Pool',
-    placeholder: 'Public-Pool',
+    default: 'Public-Pool on StartOS',
+    placeholder: 'Public-Pool on StartOS',
     maxLength: 100,
     patterns: [utils.Patterns.ascii],
   }),
@@ -20,7 +20,7 @@ export const inputSpec = InputSpec.of({
       .getOwn(effects, 'stratum', (iface) =>
         iface?.addressInfo?.filter({
           kind: ['domain', 'ipv4'],
-          exclude: { kind: ['localhost', 'link-local'] },
+          exclude: { kind: ['localhost', 'link-local', 'bridge'] },
         })?.format() || [],
       )
       .const()
