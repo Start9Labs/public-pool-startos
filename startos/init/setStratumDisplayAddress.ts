@@ -1,7 +1,9 @@
 import { store } from '../file-models/store.json'
 import { sdk } from '../sdk'
 
-export const setStratumDisplayAddress = sdk.setupOnInit(async (effects) => {
+export const setStratumDisplayAddress = sdk.setupOnInit(async (effects, kind) => {
+  if (kind !== 'install') return
+
   const stratumDisplayAddress = await sdk.serviceInterface
     .getOwn(
       effects,

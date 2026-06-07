@@ -3,7 +3,7 @@ import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:10',
+  version: '0.2.5:11',
   releaseNotes: {
     en_US: `- Update the Public Pool UI to the latest upstream (runtime configuration support).
 - Exclude the LXC bridge address from the Server Display URL options.
