@@ -3,23 +3,38 @@ import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:11',
+  version: '0.2.5:12',
   releaseNotes: {
-    en_US: `- Update the Public Pool UI to the latest upstream (runtime configuration support).
-- Exclude the LXC bridge address from the Server Display URL options.
-- Default pool identifier is now "Public-Pool on StartOS".`,
-    es_ES: `- Actualización de la interfaz de Public Pool a la última versión upstream (compatibilidad con configuración en tiempo de ejecución).
-- Se excluye la dirección del puente LXC de las opciones de URL de visualización del servidor.
-- El identificador de pool predeterminado ahora es "Public-Pool on StartOS".`,
-    de_DE: `- Aktualisierung der Public-Pool-Oberfläche auf den neuesten Upstream-Stand (Unterstützung für Laufzeitkonfiguration).
-- Die LXC-Bridge-Adresse wird aus den Optionen für die Server-Anzeige-URL ausgeschlossen.
-- Die Standard-Pool-Kennung lautet jetzt „Public-Pool on StartOS".`,
-    pl_PL: `- Aktualizacja interfejsu Public Pool do najnowszej wersji upstream (obsługa konfiguracji w czasie działania).
-- Wykluczenie adresu mostka LXC z opcji adresu URL wyświetlania serwera.
-- Domyślny identyfikator puli to teraz „Public-Pool on StartOS".`,
-    fr_FR: `- Mise à jour de l'interface de Public Pool vers la dernière version upstream (prise en charge de la configuration à l'exécution).
-- Exclusion de l'adresse du pont LXC des options d'URL d'affichage du serveur.
-- L'identifiant de pool par défaut est désormais « Public-Pool on StartOS ».`,
+    en_US: `Updated the Public Pool UI to the latest upstream.
+
+- Hashrate chart tooltips now show accepted shares, credited difficulty, and average time to block.
+- Hashrate charts now use a 1-hour average and improved number formatting.
+
+Full changes: https://github.com/benjamin-wilson/public-pool-ui/compare/5f730f4...6542500`,
+    es_ES: `Se actualizó la interfaz de Public Pool a la última versión upstream.
+
+- Las descripciones emergentes del gráfico de hashrate ahora muestran las acciones aceptadas, la dificultad acreditada y el tiempo medio hasta el bloque.
+- Los gráficos de hashrate ahora usan un promedio de 1 hora y un mejor formato numérico.
+
+Cambios completos: https://github.com/benjamin-wilson/public-pool-ui/compare/5f730f4...6542500`,
+    de_DE: `Die Public-Pool-Oberfläche wurde auf den neuesten Upstream-Stand aktualisiert.
+
+- Die Tooltips des Hashrate-Diagramms zeigen jetzt akzeptierte Shares, gutgeschriebene Difficulty und die durchschnittliche Zeit bis zum Block an.
+- Hashrate-Diagramme verwenden jetzt einen 1-Stunden-Durchschnitt und eine verbesserte Zahlenformatierung.
+
+Vollständige Änderungen: https://github.com/benjamin-wilson/public-pool-ui/compare/5f730f4...6542500`,
+    pl_PL: `Zaktualizowano interfejs Public Pool do najnowszej wersji upstream.
+
+- Dymki wykresu hashrate pokazują teraz zaakceptowane udziały, przypisaną trudność oraz średni czas do bloku.
+- Wykresy hashrate używają teraz średniej 1-godzinnej i ulepszonego formatowania liczb.
+
+Pełne zmiany: https://github.com/benjamin-wilson/public-pool-ui/compare/5f730f4...6542500`,
+    fr_FR: `Mise à jour de l'interface de Public Pool vers la dernière version upstream.
+
+- Les info-bulles du graphique de hashrate affichent désormais les parts acceptées, la difficulté créditée et le temps moyen jusqu'au bloc.
+- Les graphiques de hashrate utilisent désormais une moyenne sur 1 heure et un meilleur formatage des nombres.
+
+Modifications complètes : https://github.com/benjamin-wilson/public-pool-ui/compare/5f730f4...6542500`,
   },
   migrations: {
     up: async ({ effects }) => {
