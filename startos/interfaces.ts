@@ -22,10 +22,17 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   })
   const uiReceipt = await uiMultiOrigin.export([ui])
 
-  // Stratum
+  // Stratum — plain TCP on 3333, with StartOS-terminated TLS on 4333.
+  // secure: { ssl: false } keeps the plain port exposed on regular (non-"secure")
+  // LAN gateways; with secure: null the OS would expose only the TLS port there.
   const stratumMultiOrigin = await multiHost.bindPort(stratumPort, {
     protocol: null,
-    addSsl: null,
+    addSsl: {
+      preferredExternalPort: 4333,
+      alpn: null,
+      addXForwardedHeaders: false,
+      auth: null,
+    },
     preferredExternalPort: stratumPort,
     secure: { ssl: false },
   })

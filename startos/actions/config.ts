@@ -17,18 +17,54 @@ export const inputSpec = InputSpec.of({
   }),
   poolDisplayUrl: Value.dynamicSelect(async ({ effects }) => {
     const urls = await sdk.serviceInterface
-      .getOwn(effects, 'stratum', (iface) =>
-        iface?.addressInfo?.filter({
-          kind: ['domain', 'ipv4'],
+      .getOwn(effects, 'stratum', (iface) => {
+        const addrs = iface?.addressInfo?.filter({
+          kind: ['domain', 'ipv4', 'mdns'],
           exclude: { kind: ['localhost', 'link-local', 'bridge'] },
-        })?.format() || [],
-      )
+          predicate: (h) => !h.ssl,
+        })
+        // .local first so it lands as the default
+        return [
+          ...(addrs?.filter({ kind: 'mdns' })?.format() || []),
+          ...(addrs?.filter({ exclude: { kind: 'mdns' } })?.format() || []),
+        ]
+      })
       .const()
 
     return {
       name: 'Server Display URL',
       description:
         'The IP address or hostname to show on your Public Pool homepage',
+      values: urls.reduce(
+        (obj, url) => ({
+          ...obj,
+          [url]: url,
+        }),
+        {} as Record<string, string>,
+      ),
+      default: urls[0],
+    }
+  }),
+  securePoolDisplayUrl: Value.dynamicSelect(async ({ effects }) => {
+    const urls = await sdk.serviceInterface
+      .getOwn(effects, 'stratum', (iface) => {
+        const addrs = iface?.addressInfo?.filter({
+          kind: ['domain', 'ipv4', 'mdns'],
+          exclude: { kind: ['localhost', 'link-local', 'bridge'] },
+          predicate: (h) => h.ssl,
+        })
+        // .local first so it lands as the default (the TLS cert matches the hostname)
+        return [
+          ...(addrs?.filter({ kind: 'mdns' })?.format() || []),
+          ...(addrs?.filter({ exclude: { kind: 'mdns' } })?.format() || []),
+        ]
+      })
+      .const()
+
+    return {
+      name: 'Secure Server Display URL',
+      description:
+        'The IP address or hostname to show on your Public Pool homepage for TLS (stratum+tls) connections',
       values: urls.reduce(
         (obj, url) => ({
           ...obj,
@@ -63,6 +99,9 @@ export const config = sdk.Action.withInput(
     POOL_IDENTIFIER: (await envFile.read().once())?.POOL_IDENTIFIER,
     poolDisplayUrl:
       (await store.read((s) => s.stratumDisplayAddress).once()) || undefined,
+    securePoolDisplayUrl:
+      (await store.read((s) => s.secureStratumDisplayAddress).once()) ||
+      undefined,
   }),
 
   // the execution function
@@ -71,7 +110,10 @@ export const config = sdk.Action.withInput(
       envFile.merge(effects, {
         POOL_IDENTIFIER: input.POOL_IDENTIFIER,
       }),
-      store.merge(effects, { stratumDisplayAddress: input.poolDisplayUrl }),
+      store.merge(effects, {
+        stratumDisplayAddress: input.poolDisplayUrl,
+        secureStratumDisplayAddress: input.securePoolDisplayUrl,
+      }),
     ])
   },
 )
