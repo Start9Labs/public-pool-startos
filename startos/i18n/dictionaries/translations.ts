@@ -92,13 +92,13 @@ export default {
 
     // actions/config.ts
     200: 'Identifiant du pool',
-    201: 'L\'identifiant du pool à inclure dans les transactions Coinbase',
-    202: 'URL d\'affichage du serveur',
-    203: 'L\'adresse IP ou le nom d\'hôte à afficher sur votre page d\'accueil Public Pool',
+    201: "L'identifiant du pool à inclure dans les transactions Coinbase",
+    202: "URL d'affichage du serveur",
+    203: "L'adresse IP ou le nom d'hôte à afficher sur votre page d'accueil Public Pool",
     204: 'Configurer',
     205: 'Personnalisez votre instance Public Pool',
 
     // manifest/index.ts
-    400: 'Utilisé pour s\'abonner aux nouveaux événements de blocs',
+    400: "Utilisé pour s'abonner aux nouveaux événements de blocs",
   },
 } satisfies Record<string, LangDict>

@@ -19,7 +19,7 @@ const dict = {
   'The pool identifier to include in the Coinbase transactions': 201,
   'Server Display URL': 202,
   'The IP address or hostname to show on your Public Pool homepage': 203,
-  'Configure': 204,
+  Configure: 204,
   'Customize your Public Pool instance': 205,
 
   // manifest/index.ts

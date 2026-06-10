@@ -40,7 +40,7 @@
 | Base | `node:22-bookworm-slim` + nginx |
 | Architectures | x86_64, aarch64 |
 
-The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)) with StartOS-specific patches applied to the UI for display URL injection.
+The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)). The only build-time patch is a small build fix to `angular.json`; display URLs are injected at container start by overwriting the UI's `assets/runtime-config.js` placeholder (upstream's `window.__PUBLIC_POOL_CONFIG__` hook, see `startos/main.ts`).
 
 Two subcontainers run from the same image:
 
@@ -58,7 +58,7 @@ Two subcontainers run from the same image:
 **Key paths on the `main` volume:**
 
 - `.env` — environment configuration file
-- `store.json` — persists Stratum display address selection
+- `store.json` — persists Stratum display address selections (plain and TLS)
 - `mainnet/` — mining database (mounted to `/public-pool/DB`)
 
 **Bitcoin dependency mount:**
@@ -80,7 +80,7 @@ Two subcontainers run from the same image:
 1. Ensure Bitcoin Core is installed with ZMQ enabled
 2. Install Public Pool from the StartOS marketplace
 3. Optionally run "Configure" to set a custom pool identifier
-4. Point your mining hardware at the Stratum interface (port 3333)
+4. Point your mining hardware at the Stratum interface (plain TCP on port 3333, or TLS on port 4333)
 
 ---
 
@@ -104,7 +104,8 @@ Two subcontainers run from the same image:
 | Setting | Action | Default | Purpose |
 |---------|--------|---------|---------|
 | Pool Identifier | Configure | `Public-Pool on StartOS` | Coinbase transaction identifier |
-| Server Display URL | Configure | Auto-detected IPv4 | Address shown on pool homepage |
+| Server Display URL | Configure | Device `.local` hostname (falls back to LAN IPv4) | Plain stratum address shown on pool homepage |
+| Secure Server Display URL | Configure | Device `.local` hostname (falls back to LAN IPv4) | TLS (stratum+tls) address shown on pool homepage |
 
 ---
 
@@ -114,8 +115,9 @@ Two subcontainers run from the same image:
 |-----------|------|----------|---------|
 | Web UI | 80 | HTTP | Pool dashboard and statistics |
 | Stratum Server | 3333 | TCP (raw) | Mining protocol |
+| Stratum Server (TLS) | 4333 | TCP + TLS | Mining protocol, TLS terminated by StartOS |
 
-Both interfaces share the same domain. The Stratum server uses raw TCP (no SSL wrapper) and advertises a preferred external port of 3333.
+Both interfaces share the same domain. The Stratum server itself speaks raw TCP on port 3333; StartOS additionally terminates TLS at the platform edge on port 4333 (`addSsl` on the bind) and proxies plaintext to the same backend — upstream public-pool has no native TLS listener.
 
 ---
 
@@ -133,7 +135,8 @@ Both interfaces share the same domain. The Stratum server uses raw TCP (no SSL w
 **Inputs:**
 
 - **Pool Identifier** — ASCII text included in Coinbase transactions (max 100 chars)
-- **Server Display URL** — the address shown on your pool's homepage (auto-populated from available Stratum interface addresses)
+- **Server Display URL** — the plain stratum address shown on your pool's homepage (options from available Stratum interface addresses, `.local` first)
+- **Secure Server Display URL** — the TLS (stratum+tls) address shown on your pool's homepage (options from the interface's TLS addresses, `.local` first)
 
 ---
 
@@ -176,9 +179,10 @@ StartOS creates a critical task to enable ZMQ on Bitcoin Core when Public Pool i
 
 ## Limitations and Differences
 
-1. **Custom Docker image** — built from source with UI patches for Stratum display URL injection
+1. **Custom Docker image** — built from source; Stratum display URLs are injected at container start via the UI's runtime-config hook
 2. **Mainnet only** — no testnet support
 3. **Fixed Bitcoin connection** — must use the StartOS Bitcoin Core dependency; cannot connect to external Bitcoin nodes
+4. **TLS stratum is platform-terminated** — the certificate is issued by the device's StartOS root CA; miners that validate certificates must trust that CA
 
 ---
 
@@ -212,6 +216,7 @@ volumes:
 ports:
   ui: 80
   stratum: 3333
+  stratum_tls: 4333 (StartOS-terminated)
 dependencies:
   - bitcoind
 startos_managed_env_vars:

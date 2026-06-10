@@ -29,8 +29,7 @@ RUN \
     cd public-pool-ui && \
     git checkout ${PUBLIC_POOL_UI_SHA}
 
-# patch environment.prod.ts for self-hosting
-COPY assets/patches/environment.prod.ts /build/public-pool-ui/src/environments/environment.prod.ts
+# build fixes only — runtime config is injected by main.ts via window.__PUBLIC_POOL_CONFIG__
 COPY assets/patches/public-pool-ui.patch /build/public-pool-ui/public-pool-ui.patch
 
 RUN \

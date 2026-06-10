@@ -50,13 +50,21 @@ export const main = sdk.setupMain(async ({ effects }) => {
     null,
     'ui',
   )
-  // set desired Stratum URL for display in the UI
-  const url = (await store.read().const(effects))?.stratumDisplayAddress || ''
+  // overwrite the UI's runtime-config placeholder, read by its AppConfigService
+  // (window.__PUBLIC_POOL_CONFIG__ takes precedence over the baked-in environment)
+  const { stratumDisplayAddress, secureStratumDisplayAddress } =
+    (await store.read().const(effects)) || {}
 
   await uiSub.exec([
     'sh',
     '-c',
-    `sed -i "s/<Stratum URL>/${url}/" "$(find /var/www/html/main.*.js)"`,
+    `cat > /var/www/html/assets/runtime-config.js <<'EOF'
+window.__PUBLIC_POOL_CONFIG__ = {
+  API_URL: (window.location.origin + window.location.pathname).replace(/\\/+$/, ''),
+  STRATUM_URL: '${stratumDisplayAddress || ''}',
+  SECURE_STRATUM_URL: '${secureStratumDisplayAddress || ''}',
+}
+EOF`,
   ])
 
   /**
@@ -77,14 +85,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
         display: i18n('Stratum Server'),
         gracePeriod: 15_000,
         fn: () =>
-          sdk.healthCheck.checkPortListening(
-            effects,
-            stratumPort,
-            {
-              successMessage: i18n('Stratum server is ready'),
-              errorMessage: i18n('Stratum server is not ready'),
-            },
-          ),
+          sdk.healthCheck.checkPortListening(effects, stratumPort, {
+            successMessage: i18n('Stratum server is ready'),
+            errorMessage: i18n('Stratum server is not ready'),
+          }),
       },
       requires: [],
     })

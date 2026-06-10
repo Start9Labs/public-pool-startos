@@ -19,4 +19,4 @@ Public Pool has no upstream tags or releases on either repo — both the backend
 ## Applying the bump
 
 - **Backend** — update `ARG PUBLIC_POOL_SHA=<new sha>` at the top of `Dockerfile`.
-- **UI** — update `ARG PUBLIC_POOL_UI_SHA=<new sha>` at the top of `Dockerfile`. If `public-pool-ui` changed in ways that affect `assets/patches/public-pool-ui.patch` or `assets/patches/environment.prod.ts`, refresh those patches against the new SHA.
+- **UI** — update `ARG PUBLIC_POOL_UI_SHA=<new sha>` at the top of `Dockerfile`. If `public-pool-ui` changed in ways that affect `assets/patches/public-pool-ui.patch`, refresh it against the new SHA. The UI source is otherwise built unmodified — display URLs are injected at container start via `window.__PUBLIC_POOL_CONFIG__` (see `startos/main.ts`), so if upstream adds new keys to `src/environments/environment*.ts` that should differ when self-hosted, extend that runtime config rather than patching the environment files.

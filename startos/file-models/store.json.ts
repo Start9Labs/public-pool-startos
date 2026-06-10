@@ -3,6 +3,7 @@ import { sdk } from '../sdk'
 
 const shape = z.object({
   stratumDisplayAddress: z.string().nullable().catch(null),
+  secureStratumDisplayAddress: z.string().nullable().catch(null),
 })
 
 export const store = FileHelper.json(
