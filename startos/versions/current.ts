@@ -3,10 +3,11 @@ import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:14',
+  version: '0.2.5:15',
   releaseNotes: {
     en_US: `Updated the Public Pool UI to the latest upstream and added a TLS stratum endpoint.
 
+- Fixed the connection screen showing default stratum addresses instead of your configured ones.
 - Redesigned mining dashboard, worker, and connection screens.
 - The connection screen now lists multiple stratum endpoints (V1, V1 + TLS, V2) with one-click copy.
 - The Stratum interface now also serves TLS (stratum+tls) on port 4333, terminated by StartOS.
@@ -15,6 +16,7 @@ export const current = VersionInfo.of({
 Full changes: https://github.com/benjamin-wilson/public-pool-ui/compare/6542500...aaab760`,
     es_ES: `Se actualizó la interfaz de Public Pool a la última versión upstream y se añadió un punto de conexión stratum con TLS.
 
+- Se corrigió la pantalla de conexión que mostraba las direcciones stratum predeterminadas en lugar de las que configuraste.
 - Se rediseñaron las pantallas de panel de minería, trabajadores y conexión.
 - La pantalla de conexión ahora muestra varios puntos de conexión stratum (V1, V1 + TLS, V2) con copia en un clic.
 - La interfaz Stratum ahora también ofrece TLS (stratum+tls) en el puerto 4333, terminado por StartOS.
@@ -23,6 +25,7 @@ Full changes: https://github.com/benjamin-wilson/public-pool-ui/compare/6542500.
 Cambios completos: https://github.com/benjamin-wilson/public-pool-ui/compare/6542500...aaab760`,
     de_DE: `Die Public-Pool-Oberfläche wurde auf den neuesten Upstream-Stand aktualisiert und ein TLS-Stratum-Endpunkt hinzugefügt.
 
+- Der Verbindungsbildschirm zeigte die Standard-Stratum-Adressen statt der von dir konfigurierten an – behoben.
 - Mining-Dashboard, Worker- und Verbindungsbildschirme wurden neu gestaltet.
 - Der Verbindungsbildschirm listet jetzt mehrere Stratum-Endpunkte (V1, V1 + TLS, V2) mit Kopieren per Klick auf.
 - Die Stratum-Schnittstelle bietet jetzt zusätzlich TLS (stratum+tls) auf Port 4333, terminiert durch StartOS.
@@ -31,6 +34,7 @@ Cambios completos: https://github.com/benjamin-wilson/public-pool-ui/compare/654
 Vollständige Änderungen: https://github.com/benjamin-wilson/public-pool-ui/compare/6542500...aaab760`,
     pl_PL: `Zaktualizowano interfejs Public Pool do najnowszej wersji upstream i dodano punkt końcowy stratum z TLS.
 
+- Naprawiono ekran połączenia, który pokazywał domyślne adresy stratum zamiast skonfigurowanych przez Ciebie.
 - Przeprojektowano ekrany panelu kopania, pracowników i połączenia.
 - Ekran połączenia pokazuje teraz wiele punktów końcowych stratum (V1, V1 + TLS, V2) z kopiowaniem jednym kliknięciem.
 - Interfejs Stratum oferuje teraz także TLS (stratum+tls) na porcie 4333, z terminacją po stronie StartOS.
@@ -39,6 +43,7 @@ Vollständige Änderungen: https://github.com/benjamin-wilson/public-pool-ui/com
 Pełne zmiany: https://github.com/benjamin-wilson/public-pool-ui/compare/6542500...aaab760`,
     fr_FR: `Mise à jour de l'interface de Public Pool vers la dernière version upstream et ajout d'un point de terminaison stratum TLS.
 
+- Correction de l'écran de connexion qui affichait les adresses stratum par défaut au lieu de celles que vous avez configurées.
 - Refonte des écrans du tableau de bord de minage, des workers et de la connexion.
 - L'écran de connexion répertorie désormais plusieurs points de terminaison stratum (V1, V1 + TLS, V2) avec copie en un clic.
 - L'interface Stratum sert désormais aussi TLS (stratum+tls) sur le port 4333, terminé par StartOS.
