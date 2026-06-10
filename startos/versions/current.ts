@@ -3,7 +3,7 @@ import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:14',
+  version: '0.2.5:15',
   releaseNotes: {
     en_US: `Updated the Public Pool UI to the latest upstream and added a TLS stratum endpoint.
 

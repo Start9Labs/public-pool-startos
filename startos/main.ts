@@ -64,7 +64,9 @@ window.__PUBLIC_POOL_CONFIG__ = {
   STRATUM_URL: '${stratumDisplayAddress || ''}',
   SECURE_STRATUM_URL: '${secureStratumDisplayAddress || ''}',
 }
-EOF`,
+EOF
+rm /var/www/html/assets/runtime-config.js.br;
+rm /var/www/html/assets/runtime-config.js.gz`,
   ])
 
   /**
