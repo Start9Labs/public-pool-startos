@@ -55,6 +55,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   const { stratumDisplayAddress, secureStratumDisplayAddress } =
     (await store.read().const(effects)) || {}
 
+  // also drop the build-time precompressed siblings so nginx can't serve the stale placeholder
   await uiSub.exec([
     'sh',
     '-c',
@@ -64,7 +65,8 @@ window.__PUBLIC_POOL_CONFIG__ = {
   STRATUM_URL: '${stratumDisplayAddress || ''}',
   SECURE_STRATUM_URL: '${secureStratumDisplayAddress || ''}',
 }
-EOF`,
+EOF
+rm -f /var/www/html/assets/runtime-config.js.gz /var/www/html/assets/runtime-config.js.br`,
   ])
 
   /**
