@@ -40,7 +40,7 @@
 | Base | `node:22-bookworm-slim` + nginx |
 | Architectures | x86_64, aarch64 |
 
-The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)). The only build-time patch is a small build fix to `angular.json`; display URLs are injected at container start by overwriting the UI's `assets/runtime-config.js` placeholder (upstream's `window.__PUBLIC_POOL_CONFIG__` hook, see `startos/main.ts`).
+The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)). The UI is pinned to a pre-overhaul commit; newer upstream UI releases are incompatible with this backend (see issue #20). Build-time patches set the UI's `environment.prod.ts` for self-hosting (relative API URL, a `<Stratum URL>` placeholder) plus a small `angular.json` build fix; the placeholder is sed-replaced with the configured stratum display address at container start (see `startos/main.ts`).
 
 Two subcontainers run from the same image:
 
@@ -105,7 +105,7 @@ Two subcontainers run from the same image:
 |---------|--------|---------|---------|
 | Pool Identifier | Configure | `Public-Pool on StartOS` | Coinbase transaction identifier |
 | Server Display URL | Configure | Device `.local` hostname (falls back to LAN IPv4) | Plain stratum address shown on pool homepage |
-| Secure Server Display URL | Configure | Device `.local` hostname (falls back to LAN IPv4) | TLS (stratum+tls) address shown on pool homepage |
+| Secure Server Display URL | Configure | Device `.local` hostname (falls back to LAN IPv4) | TLS (stratum+tls) address; not displayed by the currently pinned UI, but TLS on port 4333 still works |
 
 ---
 
@@ -136,7 +136,7 @@ Both interfaces share the same domain. The Stratum server itself speaks raw TCP 
 
 - **Pool Identifier** — ASCII text included in Coinbase transactions (max 100 chars)
 - **Server Display URL** — the plain stratum address shown on your pool's homepage (options from available Stratum interface addresses, `.local` first)
-- **Secure Server Display URL** — the TLS (stratum+tls) address shown on your pool's homepage (options from the interface's TLS addresses, `.local` first)
+- **Secure Server Display URL** — the TLS (stratum+tls) address for your pool's homepage (options from the interface's TLS addresses, `.local` first). The currently pinned UI does not render this field; TLS on port 4333 still works for miners regardless.
 
 ---
 
@@ -179,10 +179,11 @@ StartOS creates a critical task to enable ZMQ on Bitcoin Core when Public Pool i
 
 ## Limitations and Differences
 
-1. **Custom Docker image** — built from source; Stratum display URLs are injected at container start via the UI's runtime-config hook
+1. **Custom Docker image** — built from source; the plain Stratum display URL is baked into the UI via a build-time placeholder that is sed-replaced at container start
 2. **Mainnet only** — no testnet support
 3. **Fixed Bitcoin connection** — must use the StartOS Bitcoin Core dependency; cannot connect to external Bitcoin nodes
 4. **TLS stratum is platform-terminated** — the certificate is issued by the device's StartOS root CA; miners that validate certificates must trust that CA
+5. **UI pinned** — the frontend is held at a pre-overhaul commit (issue #20); the latest upstream UI is incompatible with this backend
 
 ---
 

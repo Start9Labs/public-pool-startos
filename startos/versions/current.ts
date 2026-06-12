@@ -3,38 +3,18 @@ import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:16',
+  version: '0.2.5:17',
   releaseNotes: {
-    en_US: `Updated the Public Pool UI to the latest upstream.
-
-- Removed affiliate links from the UI.
-- Tidied up the dashboard tables and the share display.
-
-Full changes: https://github.com/benjamin-wilson/public-pool-ui/compare/aaab760...0778deb`,
-    es_ES: `Se actualizó la interfaz de Public Pool a la última versión upstream.
-
-- Se eliminaron los enlaces de afiliados de la interfaz.
-- Se ordenaron las tablas del panel y la visualización de shares.
-
-Cambios completos: https://github.com/benjamin-wilson/public-pool-ui/compare/aaab760...0778deb`,
-    de_DE: `Die Public-Pool-Oberfläche wurde auf den neuesten Upstream-Stand aktualisiert.
-
-- Affiliate-Links wurden aus der Oberfläche entfernt.
-- Die Dashboard-Tabellen und die Share-Anzeige wurden aufgeräumt.
-
-Vollständige Änderungen: https://github.com/benjamin-wilson/public-pool-ui/compare/aaab760...0778deb`,
-    pl_PL: `Zaktualizowano interfejs Public Pool do najnowszej wersji upstream.
-
-- Usunięto linki afiliacyjne z interfejsu.
-- Uporządkowano tabele panelu i wyświetlanie udziałów (shares).
-
-Pełne zmiany: https://github.com/benjamin-wilson/public-pool-ui/compare/aaab760...0778deb`,
-    fr_FR: `Mise à jour de l'interface de Public Pool vers la dernière version upstream.
-
-- Suppression des liens d'affiliation de l'interface.
-- Nettoyage des tableaux du tableau de bord et de l'affichage des parts (shares).
-
-Modifications complètes : https://github.com/benjamin-wilson/public-pool-ui/compare/aaab760...0778deb`,
+    en_US:
+      'Pinned the Public Pool UI to its pre-overhaul version; the latest upstream UI is incompatible with the current backend.',
+    es_ES:
+      'Se fijó la interfaz de Public Pool a su versión previa a la reestructuración; la última interfaz upstream es incompatible con el backend actual.',
+    de_DE:
+      'Die Public-Pool-Oberfläche wurde auf die Version vor der Überarbeitung festgelegt; die neueste Upstream-Oberfläche ist mit dem aktuellen Backend nicht kompatibel.',
+    pl_PL:
+      'Przypięto interfejs Public Pool do wersji sprzed przebudowy; najnowszy interfejs upstream jest niezgodny z obecnym backendem.',
+    fr_FR:
+      "Interface de Public Pool figée sur sa version d'avant la refonte ; la dernière interface upstream est incompatible avec le backend actuel.",
   },
   migrations: {
     up: async ({ effects }) => {
