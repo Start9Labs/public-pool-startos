@@ -50,23 +50,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
     null,
     'ui',
   )
-  // overwrite the UI's runtime-config placeholder, read by its AppConfigService
-  // (window.__PUBLIC_POOL_CONFIG__ takes precedence over the baked-in environment)
-  const { stratumDisplayAddress, secureStratumDisplayAddress } =
-    (await store.read().const(effects)) || {}
+  // set desired Stratum URL for display in the UI (baked-in placeholder, see environment.prod.ts)
+  const url = (await store.read().const(effects))?.stratumDisplayAddress || ''
 
-  // also drop the build-time precompressed siblings so nginx can't serve the stale placeholder
   await uiSub.exec([
     'sh',
     '-c',
-    `cat > /var/www/html/assets/runtime-config.js <<'EOF'
-window.__PUBLIC_POOL_CONFIG__ = {
-  API_URL: (window.location.origin + window.location.pathname).replace(/\\/+$/, ''),
-  STRATUM_URL: '${stratumDisplayAddress || ''}',
-  SECURE_STRATUM_URL: '${secureStratumDisplayAddress || ''}',
-}
-EOF
-rm -f /var/www/html/assets/runtime-config.js.gz /var/www/html/assets/runtime-config.js.br`,
+    `sed -i "s/<Stratum URL>/${url}/" "$(find /var/www/html/main.*.js)"`,
   ])
 
   /**

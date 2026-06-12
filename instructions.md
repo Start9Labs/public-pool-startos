@@ -17,14 +17,14 @@
 3. Open the **Configure** action and set:
    - **Pool Identifier** — the string that appears in your coinbase transactions (default `Public-Pool on StartOS`).
    - **Server Display URL** — which of the Stratum interface's plain-TCP addresses to show on the dashboard as the connection URL for miners. Defaults to the device's `.local` hostname.
-   - **Secure Server Display URL** — which of the Stratum interface's TLS addresses to show for `stratum+tls` connections. Also defaults to `.local`, which has the bonus that the TLS certificate matches the hostname.
+   - **Secure Server Display URL** — which of the Stratum interface's TLS addresses to use for `stratum+tls` connections. Also defaults to `.local`, which has the bonus that the TLS certificate matches the hostname. Note: the currently pinned UI does not display this address on the dashboard, but TLS on port 4333 still works (see **Connecting miners**).
 4. Point your mining hardware at the Stratum server. See **Connecting miners** below.
 
 ## Using Public Pool
 
 ### Web UI
 
-Open the **Web UI** interface from the service page. The dashboard shows pool hashrate, your workers, recent blocks found, and the configured Stratum display URLs miners should use.
+Open the **Web UI** interface from the service page. The dashboard shows pool hashrate, your workers, recent blocks found, and the configured Stratum display URL miners should use.
 
 ### Configure action
 
@@ -40,4 +40,4 @@ The dashboard shows the device's `.local` hostname by default. ESP32-based miner
 ## Limitations
 
 - The TLS certificate on port 4333 is issued by your device's StartOS root CA. Miners that validate certificates need that CA installed (download it from your StartOS dashboard); many ASIC firmwares skip certificate validation or do not support `stratum+tls` at all — plain TCP on 3333 always works.
-- The connection screen's "Stratum V2" entry comes from the upstream UI; Public Pool itself only speaks Stratum V1, so use the V1 endpoints.
+- The web UI is pinned to a pre-overhaul version while Public Pool's frontend is being rebuilt upstream; some newer dashboard features are not present in this release.
