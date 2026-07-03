@@ -2,6 +2,7 @@ import { sdk } from '../sdk'
 import { envFile } from '../file-models/env'
 import { utils } from '@start9labs/start-sdk'
 import { store } from '../file-models/store.json'
+import { mainHostId, stratumInterfaceId } from '../interfaces'
 
 const { InputSpec, Value } = sdk
 
@@ -16,8 +17,13 @@ export const inputSpec = InputSpec.of({
     patterns: [utils.Patterns.ascii],
   }),
   poolDisplayUrl: Value.dynamicSelect(async ({ effects }) => {
-    const urls = await sdk.serviceInterface
-      .getOwn(effects, 'stratum', (iface) => {
+    const urls = await sdk.host
+      .getOwn(effects, mainHostId, (host) => {
+        const iface =
+          host &&
+          Object.values(host.bindings)
+            .flatMap((b) => Object.values(b.interfaces))
+            .find((i) => i.id === stratumInterfaceId)
         const addrs = iface?.addressInfo?.filter({
           kind: ['domain', 'ipv4', 'mdns'],
           exclude: { kind: ['localhost', 'link-local', 'bridge'] },
@@ -46,8 +52,13 @@ export const inputSpec = InputSpec.of({
     }
   }),
   securePoolDisplayUrl: Value.dynamicSelect(async ({ effects }) => {
-    const urls = await sdk.serviceInterface
-      .getOwn(effects, 'stratum', (iface) => {
+    const urls = await sdk.host
+      .getOwn(effects, mainHostId, (host) => {
+        const iface =
+          host &&
+          Object.values(host.bindings)
+            .flatMap((b) => Object.values(b.interfaces))
+            .find((i) => i.id === stratumInterfaceId)
         const addrs = iface?.addressInfo?.filter({
           kind: ['domain', 'ipv4', 'mdns'],
           exclude: { kind: ['localhost', 'link-local', 'bridge'] },

@@ -9,16 +9,14 @@ const shape = z.object({
   STRATUM_PORT: z.literal('3333').catch('3333'),
   API_SECURE: z.literal('false').catch('false'),
   POOL_IDENTIFIER: z.string().catch('Public-Pool on StartOS'),
-  BITCOIN_RPC_URL: z
-    .literal(`http://${BITCOIN_RPC_HOST}`)
-    .catch(`http://${BITCOIN_RPC_HOST}`),
-  BITCOIN_RPC_PORT: z.literal('8332').catch('8332'),
+  // Hostname/port are dynamic in 2.0 — set to bitcoind's LXC-bridge address by
+  // main.ts (bitcoind.startos no longer resolves), so type them loosely.
+  BITCOIN_RPC_URL: z.string().catch(`http://${BITCOIN_RPC_HOST}`),
+  BITCOIN_RPC_PORT: z.string().catch('8332'),
   BITCOIN_RPC_COOKIEFILE: z
     .literal('/mnt/bitcoind/.cookie')
     .catch('/mnt/bitcoind/.cookie'),
-  BITCOIN_ZMQ_HOST: z
-    .literal(`tcp://${BITCOIN_RPC_HOST}:28332`)
-    .catch(`tcp://${BITCOIN_RPC_HOST}:28332`),
+  BITCOIN_ZMQ_HOST: z.string().catch(`tcp://${BITCOIN_RPC_HOST}:28332`),
   NETWORK: z.literal('mainnet').catch('mainnet'),
 })
 

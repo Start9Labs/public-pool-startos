@@ -3,18 +3,13 @@ import { readFile, rm } from 'fs/promises'
 import { envFile } from '../file-models/env'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:17',
+  version: '0.2.5:18',
   releaseNotes: {
-    en_US:
-      'Pinned the Public Pool UI to its pre-overhaul version; the latest upstream UI is incompatible with the current backend.',
-    es_ES:
-      'Se fijó la interfaz de Public Pool a su versión previa a la reestructuración; la última interfaz upstream es incompatible con el backend actual.',
-    de_DE:
-      'Die Public-Pool-Oberfläche wurde auf die Version vor der Überarbeitung festgelegt; die neueste Upstream-Oberfläche ist mit dem aktuellen Backend nicht kompatibel.',
-    pl_PL:
-      'Przypięto interfejs Public Pool do wersji sprzed przebudowy; najnowszy interfejs upstream jest niezgodny z obecnym backendem.',
-    fr_FR:
-      "Interface de Public Pool figée sur sa version d'avant la refonte ; la dernière interface upstream est incompatible avec le backend actuel.",
+    en_US: 'Internal updates (start-sdk 2.0.x)',
+    es_ES: 'Actualizaciones internas (start-sdk 2.0.x)',
+    de_DE: 'Interne Aktualisierungen (start-sdk 2.0.x)',
+    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 2.0.x)',
+    fr_FR: 'Mises à jour internes (start-sdk 2.0.x)',
   },
   migrations: {
     up: async ({ effects }) => {
