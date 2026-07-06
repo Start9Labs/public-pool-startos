@@ -24,7 +24,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   if (!bitcoind)
     throw new Error(
       i18n(
-        'Bitcoin Core is not yet reachable on the internal network. Ensure it is installed and running.',
+        'Bitcoin is not yet reachable on the internal network. Ensure it is installed and running.',
       ),
     )
   await envFile.merge(

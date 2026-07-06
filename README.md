@@ -63,7 +63,7 @@ Two subcontainers run from the same image:
 
 **Bitcoin dependency mount:**
 
-- `/mnt/bitcoind` — Bitcoin Core volume (read-only, for cookie auth)
+- `/mnt/bitcoind` — Bitcoin volume (read-only, for cookie auth)
 
 ---
 
@@ -73,11 +73,11 @@ Two subcontainers run from the same image:
 |------|----------|---------|
 | Installation | Docker Compose | Install from marketplace |
 | Configuration | Edit `.env` file manually | Auto-configured, tunable via action |
-| Bitcoin Core | Manual RPC setup | Auto-configured via dependency |
+| Bitcoin | Manual RPC setup | Auto-configured via dependency |
 
 **First-run steps:**
 
-1. Ensure Bitcoin Core is installed with ZMQ enabled
+1. Ensure Bitcoin is installed with ZMQ enabled
 2. Install Public Pool from the StartOS marketplace
 3. Optionally run "Configure" to set a custom pool identifier
 4. Point your mining hardware at the Stratum interface (plain TCP on port 3333, or TLS on port 4333)
@@ -90,10 +90,10 @@ Two subcontainers run from the same image:
 
 | Setting | Value | Purpose |
 |---------|-------|---------|
-| `BITCOIN_RPC_URL` | `http://bitcoind.startos` | Bitcoin RPC endpoint |
-| `BITCOIN_RPC_PORT` | `8332` | RPC port |
+| `BITCOIN_RPC_URL` | Resolved at runtime | Bitcoin RPC endpoint (bitcoind bridge address) |
+| `BITCOIN_RPC_PORT` | Resolved at runtime | RPC port (bitcoind's assigned port) |
 | `BITCOIN_RPC_COOKIEFILE` | `/mnt/bitcoind/.cookie` | Cookie auth |
-| `BITCOIN_ZMQ_HOST` | `tcp://bitcoind.startos:28332` | ZMQ block notifications |
+| `BITCOIN_ZMQ_HOST` | Resolved at runtime | ZMQ block notifications (bitcoind bridge address) |
 | `BITCOIN_RPC_TIMEOUT` | `10000` | RPC timeout (ms) |
 | `API_PORT` | `3334` | Internal API port (proxied by nginx) |
 | `STRATUM_PORT` | `3333` | Stratum protocol port |
@@ -144,14 +144,14 @@ Both interfaces share the same domain. The Stratum server itself speaks raw TCP 
 
 | Property | Value |
 |----------|-------|
-| **Service** | Bitcoin Core (`bitcoind`) |
+| **Service** | Bitcoin (`bitcoind`) |
 | **Required** | Yes |
 | **Version constraint** | `>=28.3` |
 | **Health checks** | `bitcoind` must pass before Public Pool starts |
 | **Mounted volumes** | `bitcoind:main` at `/mnt/bitcoind` (read-only) — used for cookie authentication |
 | **Purpose** | Block notifications via ZMQ and RPC for mining |
 
-StartOS creates a critical task to enable ZMQ on Bitcoin Core when Public Pool is installed. The pool connects via cookie authentication from the mounted dependency volume.
+StartOS creates a critical task to enable ZMQ on Bitcoin when Public Pool is installed. The pool connects via cookie authentication from the mounted dependency volume.
 
 ---
 
@@ -181,7 +181,7 @@ StartOS creates a critical task to enable ZMQ on Bitcoin Core when Public Pool i
 
 1. **Custom Docker image** — built from source; the plain Stratum display URL is baked into the UI via a build-time placeholder that is sed-replaced at container start
 2. **Mainnet only** — no testnet support
-3. **Fixed Bitcoin connection** — must use the StartOS Bitcoin Core dependency; cannot connect to external Bitcoin nodes
+3. **Fixed Bitcoin connection** — must use the StartOS Bitcoin dependency; cannot connect to external Bitcoin nodes
 4. **TLS stratum is platform-terminated** — the certificate is issued by the device's StartOS root CA; miners that validate certificates must trust that CA
 5. **UI pinned** — the frontend is held at a pre-overhaul commit (issue #20); the latest upstream UI is incompatible with this backend
 

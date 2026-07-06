@@ -8,12 +8,12 @@
 
 - A **Web UI** interface — the Public Pool dashboard for watching workers, hashrate, and block discoveries.
 - A **Stratum Server** interface — plain TCP on port 3333 and TLS (`stratum+tls`) on port 4333 — the endpoint your mining hardware points at.
-- Bitcoin Core auto-wired as a dependency: RPC over the cookie file and ZMQ block notifications are configured for you, so you do not edit `.env`.
+- Bitcoin auto-wired as a dependency: RPC over the cookie file and ZMQ block notifications are configured for you, so you do not edit `.env`.
 
 ## Getting set up
 
-1. Install Bitcoin Core first. Public Pool requires it and will run the **Auto Configure** task on Bitcoin Core to enable ZMQ before it can start.
-2. Install Public Pool. It will start automatically once Bitcoin Core is running and ZMQ is enabled.
+1. Install Bitcoin first. Public Pool requires it and will run the **Auto Configure** task on Bitcoin to enable ZMQ before it can start.
+2. Install Public Pool. It will start automatically once Bitcoin is running and ZMQ is enabled.
 3. Open the **Configure** action and set:
    - **Pool Identifier** — the string that appears in your coinbase transactions (default `Public-Pool on StartOS`).
    - **Server Display URL** — which of the Stratum interface's plain-TCP addresses to show on the dashboard as the connection URL for miners. Defaults to the device's `.local` hostname.
