@@ -1,7 +1,13 @@
 import { sdk } from './sdk'
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
-import { bitcoindMountpoint, stratumPort, uiPort } from './utils'
+import {
+  bitcoindMountpoint,
+  getBitcoindBridge,
+  stratumPort,
+  uiPort,
+} from './utils'
+import { envFile } from './file-models/env'
 import { store } from './file-models/store.json'
 import { i18n } from './i18n'
 
@@ -11,8 +17,28 @@ export const main = sdk.setupMain(async ({ effects }) => {
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
 
+  // Resolve bitcoind's RPC + ZMQ endpoints over the LXC bridge (the static
+  // bitcoind.startos no longer resolves) and write them into .env before the
+  // stratum daemon reads it.
+  const bitcoind = await getBitcoindBridge(effects)
+  if (!bitcoind)
+    throw new Error(
+      i18n(
+        'Bitcoin is not yet reachable on the internal network. Ensure it is installed and running.',
+      ),
+    )
+  await envFile.merge(
+    effects,
+    {
+      BITCOIN_RPC_URL: `http://${bitcoind.rpcHost}`,
+      BITCOIN_RPC_PORT: bitcoind.rpcPort,
+      BITCOIN_ZMQ_HOST: `tcp://${bitcoind.zmqHost}:${bitcoind.zmqPort}`,
+    },
+    { allowWriteAfterConst: true },
+  )
+
   // ** Stratum subcontainer **
-  const stratumSub = await sdk.SubContainer.of(
+  const stratumSub = sdk.SubContainer.of(
     effects,
     { imageId: 'public-pool' },
     sdk.Mounts.of()
@@ -39,12 +65,14 @@ export const main = sdk.setupMain(async ({ effects }) => {
     'stratum',
   )
 
-  await FileHelper.string(`${stratumSub.rootfs}${bitcoindMountpoint}/.cookie`)
+  await FileHelper.string(
+    `${await stratumSub.rootfs}${bitcoindMountpoint}/.cookie`,
+  )
     .read()
     .const(effects)
 
   // ** UI subcontainer **
-  const uiSub = await sdk.SubContainer.of(
+  const uiSub = sdk.SubContainer.of(
     effects,
     { imageId: 'public-pool' },
     null,

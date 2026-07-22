@@ -8,6 +8,7 @@ export default {
     3: 'La interfaz web está lista',
     4: 'La interfaz web no está lista',
     5: 'Interfaz web',
+    6: 'Bitcoin aún no es accesible en la red interna. Asegúrese de que esté instalado y en ejecución.',
 
     // interfaces.ts
     100: 'Interfaz web',
@@ -33,6 +34,7 @@ export default {
     3: 'Die Weboberfläche ist bereit',
     4: 'Die Weboberfläche ist nicht bereit',
     5: 'Weboberfläche',
+    6: 'Bitcoin ist im internen Netzwerk noch nicht erreichbar. Stellen Sie sicher, dass es installiert ist und läuft.',
 
     // interfaces.ts
     100: 'Weboberfläche',
@@ -58,6 +60,7 @@ export default {
     3: 'Interfejs webowy jest gotowy',
     4: 'Interfejs webowy nie jest gotowy',
     5: 'Interfejs webowy',
+    6: 'Bitcoin nie jest jeszcze osiągalny w sieci wewnętrznej. Upewnij się, że jest zainstalowany i uruchomiony.',
 
     // interfaces.ts
     100: 'Interfejs webowy',
@@ -83,6 +86,7 @@ export default {
     3: "L'interface web est prête",
     4: "L'interface web n'est pas prête",
     5: 'Interface web',
+    6: "Bitcoin n'est pas encore accessible sur le réseau interne. Assurez-vous qu'il est installé et en cours d'exécution.",
 
     // interfaces.ts
     100: 'Interface web',

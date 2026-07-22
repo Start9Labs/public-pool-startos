@@ -1,9 +1,15 @@
 import { sdk } from './sdk'
 import { uiPort, stratumPort } from './utils'
 
+// Host id (the sdk.MultiHost.of group) — distinct from the interface ids
+// exported on it. Used for sdk.host.getOwn lookups.
+export const mainHostId = 'main'
+export const uiInterfaceId = 'ui'
+export const stratumInterfaceId = 'stratum'
+
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   // Use a single MultiHost for both UI and Stratum, so they can share the same (sub)domain
-  const multiHost = sdk.MultiHost.of(effects, 'main')
+  const multiHost = sdk.MultiHost.of(effects, mainHostId)
 
   // UI
   const uiMultiOrigin = await multiHost.bindPort(uiPort, {
@@ -11,7 +17,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   })
   const ui = sdk.createInterface(effects, {
     name: 'Web UI',
-    id: 'ui',
+    id: uiInterfaceId,
     description: 'Personal web user interface for Public Pool',
     type: 'ui',
     masked: false,
@@ -38,7 +44,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   })
   const stratum = sdk.createInterface(effects, {
     name: 'Stratum Server',
-    id: 'stratum',
+    id: stratumInterfaceId,
     description: 'Your Stratum server',
     type: 'api',
     masked: false,
