@@ -1,7 +1,7 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:19',
+  version: '0.2.5:20',
   releaseNotes: {
     en_US: 'Internal updates',
     es_ES: 'Actualizaciones internas',
