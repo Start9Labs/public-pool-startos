@@ -34,11 +34,11 @@
 
 ## Image and Container Runtime
 
-| Property | Value |
-|----------|-------|
-| Image | Custom Dockerfile (multi-stage build from upstream source) |
-| Base | `node:22-bookworm-slim` + nginx |
-| Architectures | x86_64, aarch64 |
+| Property      | Value                                                      |
+| ------------- | ---------------------------------------------------------- |
+| Image         | Custom Dockerfile (multi-stage build from upstream source) |
+| Base          | `node:22-bookworm-slim` + nginx                            |
+| Architectures | x86_64, aarch64                                            |
 
 The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)). The UI is pinned to a pre-overhaul commit; newer upstream UI releases are incompatible with this backend (see issue #20). Build-time patches set the UI's `environment.prod.ts` for self-hosting (relative API URL, a `<Stratum URL>` placeholder) plus a small `angular.json` build fix; the placeholder is sed-replaced with the configured stratum display address at container start (see `startos/main.ts`).
 
@@ -51,9 +51,9 @@ Two subcontainers run from the same image:
 
 ## Volume and Data Layout
 
-| Volume | Mount Point | Purpose |
-|--------|-------------|---------|
-| `main` | various | All Public Pool data |
+| Volume | Mount Point | Purpose              |
+| ------ | ----------- | -------------------- |
+| `main` | various     | All Public Pool data |
 
 **Key paths on the `main` volume:**
 
@@ -69,11 +69,11 @@ Two subcontainers run from the same image:
 
 ## Installation and First-Run Flow
 
-| Step | Upstream | StartOS |
-|------|----------|---------|
-| Installation | Docker Compose | Install from marketplace |
+| Step          | Upstream                  | StartOS                             |
+| ------------- | ------------------------- | ----------------------------------- |
+| Installation  | Docker Compose            | Install from marketplace            |
 | Configuration | Edit `.env` file manually | Auto-configured, tunable via action |
-| Bitcoin | Manual RPC setup | Auto-configured via dependency |
+| Bitcoin       | Manual RPC setup          | Auto-configured via dependency      |
 
 **First-run steps:**
 
@@ -88,33 +88,33 @@ Two subcontainers run from the same image:
 
 ### Auto-Configured by StartOS
 
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| `BITCOIN_RPC_URL` | Resolved at runtime | Bitcoin RPC endpoint (bitcoind bridge address) |
-| `BITCOIN_RPC_PORT` | Resolved at runtime | RPC port (bitcoind's assigned port) |
-| `BITCOIN_RPC_COOKIEFILE` | `/mnt/bitcoind/.cookie` | Cookie auth |
-| `BITCOIN_ZMQ_HOST` | Resolved at runtime | ZMQ block notifications (bitcoind bridge address) |
-| `BITCOIN_RPC_TIMEOUT` | `10000` | RPC timeout (ms) |
-| `API_PORT` | `3334` | Internal API port (proxied by nginx) |
-| `STRATUM_PORT` | `3333` | Stratum protocol port |
-| `API_SECURE` | `false` | No SSL for internal API |
+| Setting                  | Value                   | Purpose                                           |
+| ------------------------ | ----------------------- | ------------------------------------------------- |
+| `BITCOIN_RPC_URL`        | Resolved at runtime     | Bitcoin RPC endpoint (bitcoind bridge address)    |
+| `BITCOIN_RPC_PORT`       | Resolved at runtime     | RPC port (bitcoind's assigned port)               |
+| `BITCOIN_RPC_COOKIEFILE` | `/mnt/bitcoind/.cookie` | Cookie auth                                       |
+| `BITCOIN_ZMQ_HOST`       | Resolved at runtime     | ZMQ block notifications (bitcoind bridge address) |
+| `BITCOIN_RPC_TIMEOUT`    | `10000`                 | RPC timeout (ms)                                  |
+| `API_PORT`               | `3334`                  | Internal API port (proxied by nginx)              |
+| `STRATUM_PORT`           | `3333`                  | Stratum protocol port                             |
+| `API_SECURE`             | `false`                 | No SSL for internal API                           |
 
 ### Configurable via Actions
 
-| Setting | Action | Default | Purpose |
-|---------|--------|---------|---------|
-| Pool Identifier | Configure | `Public-Pool on StartOS` | Coinbase transaction identifier |
-| Server Display URL | Configure | Device `.local` hostname (falls back to LAN IPv4) | Plain stratum address shown on pool homepage |
+| Setting                   | Action    | Default                                           | Purpose                                                                                               |
+| ------------------------- | --------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Pool Identifier           | Configure | `Public-Pool on StartOS`                          | Coinbase transaction identifier                                                                       |
+| Server Display URL        | Configure | Device `.local` hostname (falls back to LAN IPv4) | Plain stratum address shown on pool homepage                                                          |
 | Secure Server Display URL | Configure | Device `.local` hostname (falls back to LAN IPv4) | TLS (stratum+tls) address; not displayed by the currently pinned UI, but TLS on port 4333 still works |
 
 ---
 
 ## Network Access and Interfaces
 
-| Interface | Port | Protocol | Purpose |
-|-----------|------|----------|---------|
-| Web UI | 80 | HTTP | Pool dashboard and statistics |
-| Stratum Server | 3333 | TCP (raw) | Mining protocol |
+| Interface            | Port | Protocol  | Purpose                                    |
+| -------------------- | ---- | --------- | ------------------------------------------ |
+| Web UI               | 80   | HTTP      | Pool dashboard and statistics              |
+| Stratum Server       | 3333 | TCP (raw) | Mining protocol                            |
 | Stratum Server (TLS) | 4333 | TCP + TLS | Mining protocol, TLS terminated by StartOS |
 
 Both interfaces share the same domain. The Stratum server itself speaks raw TCP on port 3333; StartOS additionally terminates TLS at the platform edge on port 4333 (`addSsl` on the bind) and proxies plaintext to the same backend — upstream public-pool has no native TLS listener.
@@ -125,12 +125,12 @@ Both interfaces share the same domain. The Stratum server itself speaks raw TCP 
 
 ### Configure
 
-| Property | Value |
-|----------|-------|
-| ID | `config` |
-| Visibility | Enabled |
-| Availability | Any status |
-| Purpose | Set pool identifier and display URL |
+| Property     | Value                               |
+| ------------ | ----------------------------------- |
+| ID           | `config`                            |
+| Visibility   | Enabled                             |
+| Availability | Any status                          |
+| Purpose      | Set pool identifier and display URL |
 
 **Inputs:**
 
@@ -142,14 +142,14 @@ Both interfaces share the same domain. The Stratum server itself speaks raw TCP 
 
 ## Dependencies
 
-| Property | Value |
-|----------|-------|
-| **Service** | Bitcoin (`bitcoind`) |
-| **Required** | Yes |
-| **Version constraint** | `>=28.3` |
-| **Health checks** | `bitcoind` must pass before Public Pool starts |
-| **Mounted volumes** | `bitcoind:main` at `/mnt/bitcoind` (read-only) — used for cookie authentication |
-| **Purpose** | Block notifications via ZMQ and RPC for mining |
+| Property               | Value                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| **Service**            | Bitcoin (`bitcoind`)                                                            |
+| **Required**           | Yes                                                                             |
+| **Version constraint** | `>=28.3`                                                                        |
+| **Health checks**      | `bitcoind` must pass before Public Pool starts                                  |
+| **Mounted volumes**    | `bitcoind:main` at `/mnt/bitcoind` (read-only) — used for cookie authentication |
+| **Purpose**            | Block notifications via ZMQ and RPC for mining                                  |
 
 StartOS creates a critical task to enable ZMQ on Bitcoin when Public Pool is installed. The pool connects via cookie authentication from the mounted dependency volume.
 
@@ -170,10 +170,10 @@ StartOS creates a critical task to enable ZMQ on Bitcoin when Public Pool is ins
 
 ## Health Checks
 
-| Check | Display Name | Grace Period | Messages |
-|-------|--------------|-------------|----------|
-| Stratum | "Stratum Server" | 15s | "Stratum server is ready" / "Stratum server is not ready" |
-| Web UI | "Web Interface" | Default | "The web interface is ready" / "The web interface is not ready" |
+| Check   | Display Name     | Grace Period | Messages                                                        |
+| ------- | ---------------- | ------------ | --------------------------------------------------------------- |
+| Stratum | "Stratum Server" | 15s          | "Stratum server is ready" / "Stratum server is not ready"       |
+| Web UI  | "Web Interface"  | Default      | "The web interface is ready" / "The web interface is not ready" |
 
 ---
 
