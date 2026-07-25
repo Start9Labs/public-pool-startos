@@ -1,7 +1,7 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:21',
+  version: '0.2.5:22',
   releaseNotes: {
     en_US: `Resolves the addresses of connected services more reliably.
 
