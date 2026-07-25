@@ -146,7 +146,7 @@ Both interfaces share the same domain. The Stratum server itself speaks raw TCP 
 | ---------------------- | ------------------------------------------------------------------------------- |
 | **Service**            | Bitcoin (`bitcoind`)                                                            |
 | **Required**           | Yes                                                                             |
-| **Version constraint** | `>=28.3`                                                                        |
+| **Version constraint** | Declared in `startos/dependencies.ts`                                           |
 | **Health checks**      | `bitcoind` must pass before Public Pool starts                                  |
 | **Mounted volumes**    | `bitcoind:main` at `/mnt/bitcoind` (read-only) — used for cookie authentication |
 | **Purpose**            | Block notifications via ZMQ and RPC for mining                                  |
@@ -200,7 +200,7 @@ StartOS creates a critical task to enable ZMQ on Bitcoin when Public Pool is ins
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development workflow.
+Build and development workflow follow the StartOS packaging guide: <https://docs.start9.com/packaging>. Keep `README.md`, `instructions.md`, and `AGENTS.md` in sync with any change to user-visible behavior or package structure.
 
 ---
 
