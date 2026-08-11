@@ -16,6 +16,14 @@ const shape = z.object({
     .catch('/mnt/bitcoind/.cookie'),
   BITCOIN_ZMQ_HOST: z.string().optional().catch(undefined),
   NETWORK: z.literal('mainnet').catch('mainnet'),
+  // Pinned empty, not omitted. Upstream splits the coinbase 1.5%/98.5% with
+  // whatever address this holds once a miner is at or above 50 TH/s, and never
+  // checks it is an address at all — a junk value makes every job throw. The
+  // file model preserves keys it does not name, so leaving it out of the shape
+  // let a line planted on the volume (by a restored backup, say) survive every
+  // wrapper write. Naming it means each merge coerces it back to empty, and
+  // upstream pays the miner 100% when it is empty.
+  DEV_FEE_ADDRESS: z.literal('').catch(''),
 })
 
 export type EnvType = z.infer<typeof shape>
