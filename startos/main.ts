@@ -1,5 +1,6 @@
 import { sdk } from './sdk'
 import { FileHelper } from '@start9labs/start-sdk'
+import { readdir, readFile, writeFile } from 'fs/promises'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import {
   bitcoindMountpoint,
@@ -81,11 +82,16 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // set desired Stratum URL for display in the UI (baked-in placeholder, see environment.prod.ts)
   const url = (await store.read().const(effects))?.stratumDisplayAddress || ''
 
-  await uiSub.exec([
-    'sh',
-    '-c',
-    `sed -i "s/<Stratum URL>/${url}/" "$(find /var/www/html/main.*.js)"`,
-  ])
+  // Substituted in Node rather than through `sh -c sed`: the address is
+  // user-supplied, and both layers would read it as syntax — a lone '/' ends
+  // sed's s/// early, and a quote or $( ) escapes the shell entirely.
+  const htmlDir = await uiSub.subpath('/var/www/html')
+  const bundle = (await readdir(htmlDir)).find((f) => /^main\..*\.js$/.test(f))
+  if (bundle) {
+    const bundlePath = `${htmlDir}/${bundle}`
+    const contents = await readFile(bundlePath, 'utf8')
+    await writeFile(bundlePath, contents.split('<Stratum URL>').join(url))
+  }
 
   /**
    * ======================== Daemons ========================
