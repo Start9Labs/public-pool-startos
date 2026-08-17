@@ -4,13 +4,15 @@
 
 # Public Pool on StartOS
 
-> **Upstream docs:** <https://github.com/benjamin-wilson/public-pool#readme>
->
 > Everything not listed in this document should behave the same as upstream
-> Public Pool. If a feature, setting, or behavior is not mentioned here,
-> the upstream documentation is accurate and fully applicable.
+> Public Pool. If a feature, setting, or behavior is not mentioned here, the
+> upstream documentation is accurate and fully applicable — see the
+> Documentation section of `instructions.md` for links.
 
-[Public Pool](https://github.com/benjamin-wilson/public-pool) is an open-source Bitcoin mining pool with a Stratum server and web UI dashboard.
+[Public Pool](https://github.com/benjamin-wilson/public-pool) is a solo Bitcoin mining pool server: point your miners at it and they build blocks against your own node, with the full reward going to whoever finds one. This package wires it to the Bitcoin on this server, pins the developer fee to nothing, and shows your miners the address to point at.
+
+- **Upstream repo:** <https://github.com/benjamin-wilson/public-pool>
+- **Wrapper repo:** <https://github.com/Start9Labs/public-pool-startos>
 
 ---
 
@@ -18,189 +20,154 @@
 
 - [Image and Container Runtime](#image-and-container-runtime)
 - [Volume and Data Layout](#volume-and-data-layout)
-- [Installation and First-Run Flow](#installation-and-first-run-flow)
-- [Configuration Management](#configuration-management)
-- [Network Access and Interfaces](#network-access-and-interfaces)
-- [Actions (StartOS UI)](#actions-startos-ui)
+- [File Models](#file-models)
 - [Dependencies](#dependencies)
-- [Backups and Restore](#backups-and-restore)
+- [Network Access and Interfaces](#network-access-and-interfaces)
+- [Installation and First-Run Flow](#installation-and-first-run-flow)
+- [Actions](#actions)
+- [Tasks](#tasks)
 - [Health Checks](#health-checks)
+- [Backups and Restore](#backups-and-restore)
 - [Limitations and Differences](#limitations-and-differences)
-- [What Is Unchanged from Upstream](#what-is-unchanged-from-upstream)
-- [Contributing](#contributing)
 - [Quick Reference for AI Consumers](#quick-reference-for-ai-consumers)
 
 ---
 
 ## Image and Container Runtime
 
-| Property      | Value                                                      |
-| ------------- | ---------------------------------------------------------- |
-| Image         | Custom Dockerfile (multi-stage build from upstream source) |
-| Base          | `node:22-bookworm-slim` + nginx                            |
-| Architectures | x86_64, aarch64                                            |
+One image built from source, run twice — once as the stratum server, once as the web UI.
 
-The image is built from source, compiling both the backend ([public-pool](https://github.com/benjamin-wilson/public-pool)) and frontend ([public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)). The UI is pinned to a pre-overhaul commit; newer upstream UI releases are incompatible with this backend (see issue #20). Build-time patches set the UI's `environment.prod.ts` for self-hosting (relative API URL, a `<Stratum URL>` placeholder) plus a small `angular.json` build fix; the placeholder is sed-replaced with the configured stratum display address at container start (see `startos/main.ts`).
+| Property      | Value                   |
+| ------------- | ----------------------- |
+| Image         | Built from `Dockerfile` |
+| Architectures | x86_64, aarch64         |
 
-Two subcontainers run from the same image:
+| Subcontainer | Daemon    | Runs                                            |
+| ------------ | --------- | ----------------------------------------------- |
+| `stratum`    | `stratum` | The pool server itself — the one to `attach` to |
+| `ui`         | `ui`      | nginx serving the built web app                 |
 
-- **Stratum** — Node.js backend serving the Stratum mining protocol and API
-- **UI** — nginx serving the static web dashboard and proxying API requests
-
----
+**The UI's Stratum address is patched into the built JavaScript at start.** Upstream bakes a placeholder into its production bundle, and the package substitutes the address you chose before nginx serves it. That substitution is done in Node rather than through a shell `sed`, because the address is user-supplied and both layers would read parts of it as syntax — a lone `/` ends a `sed` expression early, and a quote or `$( )` escapes the shell entirely.
 
 ## Volume and Data Layout
 
-| Volume | Mount Point | Purpose              |
-| ------ | ----------- | -------------------- |
-| `main` | various     | All Public Pool data |
+One volume, mounted into the stratum container at two points.
 
-**Key paths on the `main` volume:**
+| Volume | Mount Point                                       | Purpose                                        |
+| ------ | ------------------------------------------------- | ---------------------------------------------- |
+| `main` | its `mainnet/` at `/public-pool/DB`               | The pool database: miners, shares, and history |
+| `main` | its `.env` at `/public-pool/.env`, read-only file | The pool's configuration                       |
 
-- `.env` — environment configuration file
-- `store.json` — persists Stratum display address selections (plain and TLS)
-- `mainnet/` — mining database (mounted to `/public-pool/DB`)
+The config is mounted **read-only and as a single file**, so the pool reads its settings but cannot rewrite them. The UI container mounts nothing at all — everything it needs is in the image.
 
-**Bitcoin dependency mount:**
+Bitcoin's data directory is additionally mounted read-only, which is how the pool reads its RPC cookie.
 
-- `/mnt/bitcoind` — Bitcoin volume (read-only, for cookie auth)
+## File Models
 
----
+Two models: the pool's own `.env`, and a small store for what the UI displays.
 
-## Installation and First-Run Flow
+| File         | Format | Modelled                | Written by                                   |
+| ------------ | ------ | ----------------------- | -------------------------------------------- |
+| `.env`       | env    | Yes — `FileHelper.env`  | Every init, `main`, and the Configure action |
+| `store.json` | JSON   | Yes — `FileHelper.json` | Init, and the Configure action               |
 
-| Step          | Upstream                  | StartOS                             |
-| ------------- | ------------------------- | ----------------------------------- |
-| Installation  | Docker Compose            | Install from marketplace            |
-| Configuration | Edit `.env` file manually | Auto-configured, tunable via action |
-| Bitcoin       | Manual RPC setup          | Auto-configured via dependency      |
+**Enforced** — rewritten whenever the package writes: the RPC timeout, the API and stratum ports, the API's plaintext flag, the cookie file path, the network, and `DEV_FEE_ADDRESS`.
 
-**First-run steps:**
+**Derived** — the Bitcoin RPC and ZMQ endpoints, written by `main` from bridge addresses before the stratum daemon reads the file. Each is a separate reactive subscription, so a bitcoind update or restart does not restart the pool — only an actual address change does.
 
-1. Ensure Bitcoin is installed with ZMQ enabled
-2. Install Public Pool from the StartOS marketplace
-3. Optionally run "Configure" to set a custom pool identifier
-4. Point your mining hardware at the Stratum interface (plain TCP on port 3333, or TLS on port 4333)
+**Yours** — the pool identifier stamped into coinbase transactions, and the two display addresses.
 
----
+### `DEV_FEE_ADDRESS` is pinned empty, deliberately
 
-## Configuration Management
+Upstream splits the coinbase 1.5% / 98.5% with whatever address this key holds, once a miner is at or above 50 TH/s — and it never checks the value is an address at all, so a junk one makes every job throw.
 
-### Auto-Configured by StartOS
-
-| Setting                  | Value                   | Purpose                                           |
-| ------------------------ | ----------------------- | ------------------------------------------------- |
-| `BITCOIN_RPC_URL`        | Resolved at runtime     | Bitcoin RPC endpoint (bitcoind bridge address)    |
-| `BITCOIN_RPC_PORT`       | Resolved at runtime     | RPC port (bitcoind's assigned port)               |
-| `BITCOIN_RPC_COOKIEFILE` | `/mnt/bitcoind/.cookie` | Cookie auth                                       |
-| `BITCOIN_ZMQ_HOST`       | Resolved at runtime     | ZMQ block notifications (bitcoind bridge address) |
-| `BITCOIN_RPC_TIMEOUT`    | `10000`                 | RPC timeout (ms)                                  |
-| `API_PORT`               | `3334`                  | Internal API port (proxied by nginx)              |
-| `STRATUM_PORT`           | `3333`                  | Stratum protocol port                             |
-| `API_SECURE`             | `false`                 | No SSL for internal API                           |
-
-### Configurable via Actions
-
-| Setting                   | Action    | Default                                           | Purpose                                                                                               |
-| ------------------------- | --------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Pool Identifier           | Configure | `Public-Pool on StartOS`                          | Coinbase transaction identifier                                                                       |
-| Server Display URL        | Configure | Device `.local` hostname (falls back to LAN IPv4) | Plain stratum address shown on pool homepage                                                          |
-| Secure Server Display URL | Configure | Device `.local` hostname (falls back to LAN IPv4) | TLS (stratum+tls) address; not displayed by the currently pinned UI, but TLS on port 4333 still works |
-
----
-
-## Network Access and Interfaces
-
-| Interface            | Port | Protocol  | Purpose                                    |
-| -------------------- | ---- | --------- | ------------------------------------------ |
-| Web UI               | 80   | HTTP      | Pool dashboard and statistics              |
-| Stratum Server       | 3333 | TCP (raw) | Mining protocol                            |
-| Stratum Server (TLS) | 4333 | TCP + TLS | Mining protocol, TLS terminated by StartOS |
-
-Both interfaces share the same domain. The Stratum server itself speaks raw TCP on port 3333; StartOS additionally terminates TLS at the platform edge on port 4333 (`addSsl` on the bind) and proxies plaintext to the same backend — upstream public-pool has no native TLS listener.
-
----
-
-## Actions (StartOS UI)
-
-### Configure
-
-| Property     | Value                               |
-| ------------ | ----------------------------------- |
-| ID           | `config`                            |
-| Visibility   | Enabled                             |
-| Availability | Any status                          |
-| Purpose      | Set pool identifier and display URL |
-
-**Inputs:**
-
-- **Pool Identifier** — ASCII text included in Coinbase transactions (max 100 chars)
-- **Server Display URL** — the plain stratum address shown on your pool's homepage (options from available Stratum interface addresses, `.local` first)
-- **Secure Server Display URL** — the TLS (stratum+tls) address for your pool's homepage (options from the interface's TLS addresses, `.local` first). The currently pinned UI does not render this field; TLS on port 4333 still works for miners regardless.
-
----
+It is named in the model rather than left out precisely because a file model **preserves keys it does not name**. Left out, a line planted on the volume — by a restored backup, say — would survive every write the package makes. Naming it means each merge coerces it back to empty, and upstream pays the miner 100% when it is empty.
 
 ## Dependencies
 
-| Property               | Value                                                                           |
-| ---------------------- | ------------------------------------------------------------------------------- |
-| **Service**            | Bitcoin (`bitcoind`)                                                            |
-| **Required**           | Yes                                                                             |
-| **Version constraint** | Declared in `startos/dependencies.ts`                                           |
-| **Health checks**      | `bitcoind` must pass before Public Pool starts                                  |
-| **Mounted volumes**    | `bitcoind:main` at `/mnt/bitcoind` (read-only) — used for cookie authentication |
-| **Purpose**            | Block notifications via ZMQ and RPC for mining                                  |
+One, and it is required.
 
-StartOS creates a critical task to enable ZMQ on Bitcoin when Public Pool is installed. The pool connects via cookie authentication from the mounted dependency volume.
+| Dependency | Kind      | Health check |
+| ---------- | --------- | ------------ |
+| `bitcoind` | `running` | `bitcoind`   |
 
----
+**Bitcoin must have ZMQ enabled**, which is how the pool learns about new blocks. The package raises a `critical` task against Bitcoin asking for it, registered so that it **re-raises whenever the setting stops matching** rather than prompting once.
 
-## Backups and Restore
+**The pool refuses to start if Bitcoin is not yet reachable** on the internal network, with a message saying so, rather than starting against an address that does not resolve. It also watches Bitcoin's RPC cookie file, so a cookie rotation is picked up rather than leaving the pool authenticating with a stale one.
 
-**Included in backup:**
+## Network Access and Interfaces
 
-- `main` volume — configuration, database, and state
+Two interfaces on one host, so they can share a domain.
 
-**Restore behavior:**
+| Interface      | Id        | Type | Port | Description                            |
+| -------------- | --------- | ---- | ---- | -------------------------------------- |
+| Web UI         | `ui`      | ui   | 80   | Personal web interface for Public Pool |
+| Stratum Server | `stratum` | api  | 3333 | Where your miners connect              |
 
-- All mining history and configuration restored
-- Service resumes normal operation
+**Stratum is offered plaintext and over TLS**, on separate ports, and the plaintext one stays available on ordinary LAN gateways rather than being replaced by the TLS one. That is deliberate: most mining hardware speaks plain stratum only.
 
----
+**The address your miners use is not necessarily the one the UI shows.** The UI's displayed address is a separate setting, seeded from the `.local` hostname and changeable in Configure — it is what the pool's homepage tells people to point at.
+
+## Installation and First-Run Flow
+
+Install seeds the config and picks display addresses from the `.local` hostname, falling back to a private LAN address. A `critical` task is raised against **Bitcoin**, not this package: enable ZMQ.
+
+Once Bitcoin is configured and synced, point a miner at the stratum address using **your own Bitcoin address as the username** — that is how Public Pool identifies a miner and where a found block pays out. Nothing on this side needs a credential.
+
+## Actions
+
+One action.
+
+### Configure
+
+The pool identifier, and the two addresses the web UI displays.
+
+- **What it changes:** `POOL_IDENTIFIER` in `.env`, and both display addresses in `store.json`.
+- **Cost:** seconds, then a restart.
+- **Repeat safety:** idempotent; the form is pre-filled, and the address dropdowns are built from what the interface actually publishes.
+- **The pool identifier goes into every coinbase transaction** the pool builds, so it is public on-chain if you find a block.
+- **Changing a display address changes what the homepage advertises**, not where the server listens. Miners already pointed somewhere valid keep working.
+
+## Tasks
+
+One task, and it is on Bitcoin rather than here.
+
+| Task                     | On         | Severity   | Raised when                       | Cleared when             |
+| ------------------------ | ---------- | ---------- | --------------------------------- | ------------------------ |
+| Bitcoin's Auto-Configure | `bitcoind` | `critical` | Bitcoin does not have ZMQ enabled | Bitcoin's settings match |
+
+Registered so it re-raises if Bitcoin's configuration later stops matching — for example after restoring Bitcoin from a backup taken without ZMQ. `critical` because without ZMQ the pool never learns a block was found and cannot issue new work.
 
 ## Health Checks
 
-| Check   | Display Name     | Grace Period | Messages                                                        |
-| ------- | ---------------- | ------------ | --------------------------------------------------------------- |
-| Stratum | "Stratum Server" | 15s          | "Stratum server is ready" / "Stratum server is not ready"       |
-| Web UI  | "Web Interface"  | Default      | "The web interface is ready" / "The web interface is not ready" |
+Two checks, one per daemon, and they are independent — the UI does not wait on the pool.
 
----
+| Check     | Displayed        | Method                 | Grace |
+| --------- | ---------------- | ---------------------- | ----- |
+| `stratum` | "Stratum Server" | Port 3333 is listening | 15 s  |
+| `ui`      | "Web Interface"  | Port 80 is listening   | —     |
+
+A `stratum` failure after the grace period is the pool itself: most often Bitcoin's RPC refusing the cookie, or a `.env` value it rejects. Both are named in the service logs.
+
+**A green stratum check does not mean miners are mining.** It means the port is open. Miners connecting and failing to get work points at Bitcoin — unsynced, or ZMQ not actually enabled — rather than at the pool.
+
+## Backups and Restore
+
+The `main` volume is copied wholesale — `sdk.Backups.ofVolumes('main')`. No dump step and nothing excluded.
+
+- **Included:** the pool database with every miner, share, and block record, plus `.env` and `store.json`.
+- **Not included:** nothing of consequence is missing. There are no keys here — payouts go to the Bitcoin address each miner supplies as its username, which lives in the miner's own configuration.
+- **Restore:** complete, and no task is raised on this side. Bitcoin's addresses are re-resolved on the first start, so a bitcoind on a different port is picked up automatically. Check the display addresses if the restored server publishes different ones — they are seeded only when missing, so an existing value survives.
 
 ## Limitations and Differences
 
-1. **Custom Docker image** — built from source; the plain Stratum display URL is baked into the UI via a build-time placeholder that is sed-replaced at container start
-2. **Mainnet only** — no testnet support
-3. **Fixed Bitcoin connection** — must use the StartOS Bitcoin dependency; cannot connect to external Bitcoin nodes
-4. **TLS stratum is platform-terminated** — the certificate is issued by the device's StartOS root CA; miners that validate certificates must trust that CA
-5. **UI pinned** — the frontend is held at a pre-overhaul commit (issue #20); the latest upstream UI is incompatible with this backend
-
----
-
-## What Is Unchanged from Upstream
-
-- Full Stratum protocol support
-- Mining statistics and dashboard
-- Block discovery tracking
-- Worker management
-- Coinbase transaction customization
-- All web UI features
-
----
-
-## Contributing
-
-Build and development workflow follow the StartOS packaging guide: <https://docs.start9.com/packaging>. Keep `README.md`, `instructions.md`, and `AGENTS.md` in sync with any change to user-visible behavior or package structure.
+1. **The developer fee is pinned off.** The key is named in the model specifically so a value planted on the volume cannot survive.
+2. **Bitcoin is required and must have ZMQ enabled**, enforced by a re-raising `critical` task.
+3. **The pool refuses to start while Bitcoin is unreachable** rather than starting against a dead address.
+4. **Mainnet only.**
+5. **The UI's displayed Stratum address is patched into the built bundle at start** — it is display text, not a binding.
+6. **The pool's `.env` is mounted read-only** and is not editable from inside the container.
+7. **No riscv64 build.** x86_64 and aarch64 only.
 
 ---
 
@@ -208,28 +175,29 @@ Build and development workflow follow the StartOS packaging guide: <https://docs
 
 ```yaml
 package_id: public-pool
-image: custom (dockerBuild from upstream source)
+image: ./Dockerfile
 architectures:
   - x86_64
   - aarch64
+subcontainers:
+  - stratum # the pool server; the one to attach to
+  - ui # nginx serving the built web app
 volumes:
-  main: various (.env, store.json, mainnet/)
-ports:
-  ui: 80
-  stratum: 3333
-  stratum_tls: 4333 (StartOS-terminated)
+  main: its mainnet/ at /public-pool/DB, its .env at /public-pool/.env (read-only file)
+file_models:
+  - .env
+  - store.json
+startos_managed_env_vars: [] # the pool is configured by .env, not container env
 dependencies:
-  - bitcoind
-startos_managed_env_vars:
-  - BITCOIN_RPC_URL
-  - BITCOIN_RPC_PORT
-  - BITCOIN_RPC_COOKIEFILE
-  - BITCOIN_ZMQ_HOST
-  - BITCOIN_RPC_TIMEOUT
-  - API_PORT
-  - STRATUM_PORT
-  - API_SECURE
-  - POOL_IDENTIFIER
+  - bitcoind # required, running; must have ZMQ enabled
+interfaces:
+  ui: { type: ui, port: 80 }
+  stratum: { type: api, port: 3333 } # plus StartOS-terminated TLS on a second port
 actions:
   - config
+tasks:
+  - { action: autoconfig, severity: critical } # on bitcoind; re-raises
+health_checks:
+  - stratum # displayed "Stratum Server"
+  - ui # displayed "Web Interface"
 ```

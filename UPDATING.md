@@ -26,9 +26,11 @@ When the overhaul lands and a compatible UI exists, bring the newer mechanism ba
 ## Determining the upstream version
 
 - **Backend** — [benjamin-wilson/public-pool](https://github.com/benjamin-wilson/public-pool). Latest `master` commit:
+
   ```sh
   gh api repos/benjamin-wilson/public-pool/commits/master --jq '.sha'
   ```
+
   Pin lives in `Dockerfile` as `ARG PUBLIC_POOL_SHA`.
 
 - **UI** — [benjamin-wilson/public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui). Latest `master` commit:

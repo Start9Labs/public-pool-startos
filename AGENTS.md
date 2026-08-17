@@ -6,14 +6,14 @@ Develop it inside a StartOS packaging workspace created by `start-cli s9pk init-
 which provides the packaging guide and agent context one level up. If you're reading this in a
 bare clone with no workspace, the full guide is at <https://docs.start9.com/packaging>.
 
-Work this package's `TODO.md` from top to bottom. Keep `README.md` (architecture, for developers and LLMs) and `instructions.md` (end-user docs) in sync with your changes.
+Work this package's `TODO.md` from top to bottom. Keep `README.md` (technical reference for an AI support or administering agent) and `instructions.md` (end-user docs) in sync with your changes.
 
 ## This repo
 
-- **Package id is `public-pool`.** A Bitcoin mining pool exposing two interfaces — `ui` (web UI) and `stratum` (the Stratum server) — that share a single MultiHost (host id `main`, exported from `startos/interfaces.ts`) so they can live on the same (sub)domain. The stratum interface is plain TCP on 3333 with StartOS-terminated TLS on 4333.
-- **Hard dependency on Bitcoin (`bitcoind`, `optional: false`) with ZMQ required.** A `critical` autoconfig task (`startos/dependencies.ts`) enforces `zmqEnabled` on bitcoind.
-- **Reaching bitcoind's RPC and ZMQ goes through the LXC bridge**, not `bitcoind.startos` DNS. `getBitcoindBridge` (`startos/utils.ts`) resolves both addresses through `sdk.host.getBridgeAddress` — the bridge `10.0.3.1:<assigned port>` for bitcoind's exported `rpcHostId`/`rpcPort` and `zmqHostId`/`zmqPortBlock` (imported from `bitcoin-core-startos/startos/utils`, never hardcoded), read via `.const()` so the pool restarts only on a real port change, never on a plain bitcoind update. `main.ts` writes them into `.env` (`BITCOIN_RPC_URL`/`BITCOIN_RPC_PORT`/`BITCOIN_ZMQ_HOST`) before the stratum daemon starts, throwing if bitcoind isn't yet reachable. The env file model leaves those fields optional (`.optional().catch(undefined)`) — absent until bitcoind resolves, no fabricated fallback — because the address is dynamic.
-
-## Inspecting a running install
-
-To run a command inside the service's container (read its generated config, grep app logs), use `start-cli package attach public-pool -n <name> -- <cmd>`. Select the subcontainer by **name** with `-n` (the name passed to `SubContainer.of` in `main.ts` — here `stratum` for the pool backend or `ui` for the nginx web UI) or by image with `-i`. Note: `-s/--subcontainer` matches the internal **Guid**, not the name, so passing a name to `-s` fails with "no matching subcontainers".
+- **`DEV_FEE_ADDRESS` must stay _named_ in the env model, pinned empty.** A file model preserves keys it does not name, so leaving it out lets a line planted on the volume — a restored backup, say — survive every wrapper write. Upstream splits the coinbase 1.5%/98.5% to whatever it holds once a miner clears 50 TH/s, and never validates it is an address, so a junk value makes every job throw. Naming it means each merge coerces it back to empty, and upstream then pays the miner 100%.
+- **Substitute the Stratum display URL in Node, not through `sh -c sed`.** The address is user-supplied and both layers read parts of it as syntax: a lone `/` ends `s///` early, and a quote or `$( )` escapes the shell.
+- **RPC and ZMQ are separate bitcoind hosts and need separate `.const()` subscriptions.** Each fires only on its own assigned-port change, which is what keeps a routine bitcoind update or restart from restarting the pool.
+- **`main` throws when bitcoind is unreachable rather than writing a placeholder address.** Starting against an address that does not resolve gives a green stratum check and miners that silently never get work.
+- **The `.cookie` read in `main` is a `.const()` watch, not a one-off.** It is what makes a bitcoind cookie rotation restart the pool instead of leaving it authenticating with a stale credential.
+- **The stratum binding keeps `secure: { ssl: false }`.** With `secure: null` the OS would expose only the TLS port on ordinary LAN gateways, and most mining hardware speaks plain stratum only.
+- **Display addresses are seeded only when missing**, so a user's selection survives updates and restores.
