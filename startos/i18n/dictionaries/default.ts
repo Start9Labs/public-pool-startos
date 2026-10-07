@@ -13,18 +13,20 @@ const dict = {
   'Web UI': 100,
   'Personal web user interface for Public Pool': 101,
   'Stratum Server': 102,
-  'Your Stratum server': 103,
+  'Where your miners connect': 103,
 
   // actions/config.ts
   'Pool Identifier': 200,
-  'The pool identifier to include in the Coinbase transactions': 201,
+  'Written into the coinbase transaction of every block this pool builds, so it becomes public on the blockchain if one of your miners finds a block. If it is too long to fit, the pool leaves it out.': 201,
   'Server Display URL': 202,
-  'The IP address or hostname to show on your Public Pool homepage': 203,
+  'The plain stratum address the Public Pool homepage tells miners to connect to. It changes what the homepage shows, not where the pool listens. Choose a LAN IP address if your miners cannot resolve .local names.': 203,
   Configure: 204,
-  'Customize your Public Pool instance': 205,
+  'Set the pool identifier and the stratum addresses the homepage shows to miners.': 205,
+  'Secure Server Display URL': 206,
+  'The stratum+tls address to show to miners that connect over TLS. The web interface this package ships does not display it yet.': 207,
 
-  // manifest/index.ts
-  'Used to subscribe to new block events': 400,
+  // dependencies.ts
+  'Must enable ZMQ in Bitcoin to use it with Public Pool': 300,
 } as const
 
 /**

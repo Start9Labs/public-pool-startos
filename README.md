@@ -120,7 +120,7 @@ One action.
 
 ### Configure
 
-The pool identifier, and the two addresses the web UI displays.
+The pool identifier, and the plain and TLS stratum addresses for the web UI to display. The pinned UI shows only the plain one; the TLS one is stored for a later UI (see `UPDATING.md`).
 
 - **What it changes:** `POOL_IDENTIFIER` in `.env`, and both display addresses in `store.json`.
 - **Cost:** seconds, then a restart.

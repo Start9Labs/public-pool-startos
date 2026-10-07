@@ -8,14 +8,15 @@ import {
   stratumPort,
   uiPort,
 } from './utils'
-import { envFile } from './file-models/env'
-import { store } from './file-models/store.json'
+import { envFile } from './fileModels/env'
+import { store } from './fileModels/store.json'
 import { i18n } from './i18n'
+import { dependencies } from './dependencies'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info('Starting Public Pool!')
 
-  const depResult = await sdk.checkDependencies(effects)
+  const depResult = await dependencies.check(effects)
   depResult.throwIfNotSatisfied()
 
   // Resolve bitcoind's RPC + ZMQ endpoints over the LXC bridge (the static

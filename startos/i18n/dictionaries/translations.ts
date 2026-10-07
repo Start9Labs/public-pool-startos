@@ -14,18 +14,20 @@ export default {
     100: 'Interfaz web',
     101: 'Interfaz web personal para Public Pool',
     102: 'Servidor Stratum',
-    103: 'Tu servidor Stratum',
+    103: 'Donde se conectan tus mineros',
 
     // actions/config.ts
     200: 'Identificador del pool',
-    201: 'El identificador del pool a incluir en las transacciones Coinbase',
+    201: 'Se escribe en la transacción coinbase de cada bloque que construye este pool, así que se hace público en la cadena de bloques si uno de tus mineros encuentra un bloque. Si es demasiado largo para caber, el pool lo omite.',
     202: 'URL de visualización del servidor',
-    203: 'La dirección IP o nombre de host a mostrar en tu página principal de Public Pool',
+    203: 'La dirección stratum sin cifrar a la que la página principal de Public Pool indica a los mineros que se conecten. Cambia lo que muestra la página principal, no dónde escucha el pool. Elige una dirección IP de la LAN si tus mineros no pueden resolver nombres .local.',
     204: 'Configurar',
-    205: 'Personaliza tu instancia de Public Pool',
+    205: 'Establece el identificador del pool y las direcciones stratum que la página principal muestra a los mineros.',
+    206: 'URL de visualización segura del servidor',
+    207: 'La dirección stratum+tls que se muestra a los mineros que se conectan por TLS. La interfaz web que incluye este paquete todavía no la muestra.',
 
-    // manifest/index.ts
-    400: 'Se usa para suscribirse a nuevos eventos de bloques',
+    // dependencies.ts
+    300: 'Hay que activar ZMQ en Bitcoin para usarlo con Public Pool',
   },
   de_DE: {
     // main.ts
@@ -40,18 +42,20 @@ export default {
     100: 'Weboberfläche',
     101: 'Persönliche Weboberfläche für Public Pool',
     102: 'Stratum-Server',
-    103: 'Ihr Stratum-Server',
+    103: 'Wo sich Ihre Miner verbinden',
 
     // actions/config.ts
     200: 'Pool-Identifikator',
-    201: 'Der Pool-Identifikator, der in den Coinbase-Transaktionen enthalten sein soll',
+    201: 'Wird in die Coinbase-Transaktion jedes Blocks geschrieben, den dieser Pool erstellt, und wird damit in der Blockchain öffentlich, wenn einer Ihrer Miner einen Block findet. Ist er zu lang, lässt der Pool ihn weg.',
     202: 'Server-Anzeige-URL',
-    203: 'Die IP-Adresse oder der Hostname, die auf Ihrer Public Pool-Homepage angezeigt werden sollen',
+    203: 'Die unverschlüsselte Stratum-Adresse, mit der sich Miner laut der Public Pool-Startseite verbinden sollen. Sie ändert, was die Startseite anzeigt, nicht, wo der Pool lauscht. Wählen Sie eine LAN-IP-Adresse, wenn Ihre Miner keine .local-Namen auflösen können.',
     204: 'Konfigurieren',
-    205: 'Passen Sie Ihre Public Pool-Instanz an',
+    205: 'Legen Sie den Pool-Identifikator und die Stratum-Adressen fest, die die Startseite Minern anzeigt.',
+    206: 'Sichere Server-Anzeige-URL',
+    207: 'Die stratum+tls-Adresse, die Minern angezeigt wird, die sich über TLS verbinden. Die Weboberfläche dieses Pakets zeigt sie noch nicht an.',
 
-    // manifest/index.ts
-    400: 'Wird verwendet, um neue Block-Ereignisse zu abonnieren',
+    // dependencies.ts
+    300: 'ZMQ muss in Bitcoin aktiviert sein, um es mit Public Pool zu verwenden',
   },
   pl_PL: {
     // main.ts
@@ -66,18 +70,20 @@ export default {
     100: 'Interfejs webowy',
     101: 'Osobisty interfejs webowy dla Public Pool',
     102: 'Serwer Stratum',
-    103: 'Twój serwer Stratum',
+    103: 'Miejsce, z którym łączą się twoje koparki',
 
     // actions/config.ts
     200: 'Identyfikator puli',
-    201: 'Identyfikator puli do uwzględnienia w transakcjach Coinbase',
+    201: 'Zapisywany w transakcji coinbase każdego bloku budowanego przez tę pulę, więc staje się publiczny w blockchainie, jeśli jedna z twoich koparek znajdzie blok. Jeśli jest za długi, pula go pomija.',
     202: 'URL wyświetlania serwera',
-    203: 'Adres IP lub nazwa hosta do wyświetlenia na stronie głównej twojego Public Pool',
+    203: 'Nieszyfrowany adres stratum, z którym strona główna Public Pool każe łączyć się koparkom. Zmienia to, co pokazuje strona główna, a nie to, na czym nasłuchuje pula. Wybierz adres IP w sieci LAN, jeśli twoje koparki nie rozpoznają nazw .local.',
     204: 'Konfiguruj',
-    205: 'Dostosuj swoją instancję Public Pool',
+    205: 'Ustaw identyfikator puli i adresy stratum, które strona główna pokazuje koparkom.',
+    206: 'Bezpieczny URL wyświetlania serwera',
+    207: 'Adres stratum+tls pokazywany koparkom łączącym się przez TLS. Interfejs webowy dostarczany w tym pakiecie jeszcze go nie wyświetla.',
 
-    // manifest/index.ts
-    400: 'Używany do subskrypcji nowych zdarzeń bloków',
+    // dependencies.ts
+    300: 'Aby używać Bitcoina z Public Pool, trzeba włączyć w nim ZMQ',
   },
   fr_FR: {
     // main.ts
@@ -92,17 +98,19 @@ export default {
     100: 'Interface web',
     101: 'Interface web personnelle pour Public Pool',
     102: 'Serveur Stratum',
-    103: 'Votre serveur Stratum',
+    103: 'Là où vos mineurs se connectent',
 
     // actions/config.ts
     200: 'Identifiant du pool',
-    201: "L'identifiant du pool à inclure dans les transactions Coinbase",
+    201: "Inscrit dans la transaction coinbase de chaque bloc que ce pool construit : il devient donc public sur la blockchain si l'un de vos mineurs trouve un bloc. S'il est trop long pour tenir, le pool l'omet.",
     202: "URL d'affichage du serveur",
-    203: "L'adresse IP ou le nom d'hôte à afficher sur votre page d'accueil Public Pool",
+    203: "L'adresse stratum non chiffrée à laquelle la page d'accueil de Public Pool indique aux mineurs de se connecter. Elle change ce qu'affiche la page d'accueil, pas l'endroit où le pool écoute. Choisissez une adresse IP du réseau local si vos mineurs ne savent pas résoudre les noms .local.",
     204: 'Configurer',
-    205: 'Personnalisez votre instance Public Pool',
+    205: "Définissez l'identifiant du pool et les adresses stratum que la page d'accueil montre aux mineurs.",
+    206: "URL d'affichage sécurisée du serveur",
+    207: "L'adresse stratum+tls à montrer aux mineurs qui se connectent en TLS. L'interface web fournie par ce paquet ne l'affiche pas encore.",
 
-    // manifest/index.ts
-    400: "Utilisé pour s'abonner aux nouveaux événements de blocs",
+    // dependencies.ts
+    300: "ZMQ doit être activé dans Bitcoin pour l'utiliser avec Public Pool",
   },
 } satisfies Record<string, LangDict>

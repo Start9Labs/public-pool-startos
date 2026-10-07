@@ -1,15 +1,18 @@
 import { sdk } from '../sdk'
-import { envFile } from '../file-models/env'
+import { envFile } from '../fileModels/env'
 import { utils } from '@start9labs/start-sdk'
-import { store } from '../file-models/store.json'
+import { store } from '../fileModels/store.json'
 import { mainHostId, stratumInterfaceId } from '../interfaces'
+import { i18n } from '../i18n'
 
 const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
   POOL_IDENTIFIER: Value.text({
-    name: 'Pool Identifier',
-    description: 'The pool identifier to include in the Coinbase transactions',
+    name: i18n('Pool Identifier'),
+    description: i18n(
+      'Written into the coinbase transaction of every block this pool builds, so it becomes public on the blockchain if one of your miners finds a block. If it is too long to fit, the pool leaves it out.',
+    ),
     required: true,
     default: 'Public-Pool on StartOS',
     placeholder: 'Public-Pool on StartOS',
@@ -38,9 +41,10 @@ export const inputSpec = InputSpec.of({
       .const()
 
     return {
-      name: 'Server Display URL',
-      description:
-        'The IP address or hostname to show on your Public Pool homepage',
+      name: i18n('Server Display URL'),
+      description: i18n(
+        'The plain stratum address the Public Pool homepage tells miners to connect to. It changes what the homepage shows, not where the pool listens. Choose a LAN IP address if your miners cannot resolve .local names.',
+      ),
       values: urls.reduce(
         (obj, url) => ({
           ...obj,
@@ -48,7 +52,7 @@ export const inputSpec = InputSpec.of({
         }),
         {} as Record<string, string>,
       ),
-      default: urls[0],
+      default: urls[0] ?? null,
     }
   }),
   securePoolDisplayUrl: Value.dynamicSelect(async ({ effects }) => {
@@ -73,9 +77,10 @@ export const inputSpec = InputSpec.of({
       .const()
 
     return {
-      name: 'Secure Server Display URL',
-      description:
-        'The IP address or hostname to show on your Public Pool homepage for TLS (stratum+tls) connections',
+      name: i18n('Secure Server Display URL'),
+      description: i18n(
+        'The stratum+tls address to show to miners that connect over TLS. The web interface this package ships does not display it yet.',
+      ),
       values: urls.reduce(
         (obj, url) => ({
           ...obj,
@@ -83,7 +88,7 @@ export const inputSpec = InputSpec.of({
         }),
         {} as Record<string, string>,
       ),
-      default: urls[0],
+      default: urls[0] ?? null,
     }
   }),
 })
@@ -94,8 +99,10 @@ export const config = sdk.Action.withInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Configure',
-    description: 'Customize your Public Pool instance',
+    name: i18n('Configure'),
+    description: i18n(
+      'Set the pool identifier and the stratum addresses the homepage shows to miners.',
+    ),
     warning: null,
     allowedStatuses: 'any',
     group: null,

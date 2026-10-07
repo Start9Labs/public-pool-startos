@@ -1,6 +1,6 @@
 import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
-import { envFile } from '../file-models/env'
+import { envFile } from '../fileModels/env'
 
 export const v_0_2_5_18 = VersionInfo.of({
   version: '0.2.5:18',
