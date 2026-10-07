@@ -18,18 +18,23 @@ Freshly scaffolded? Work the
 guide page, not a file in this repo — read it, don't copy it in.
 
 Keep `README.md` (technical reference for an AI support or administering agent) and
-`instructions.md` (end-user docs) in sync with your changes.
+`instructions.md` (end-user docs) in sync with your changes. This file restates neither:
+whoever changes the package has both, so it carries only what they don't — repo mechanics,
+a change that looks right and is not, where the next thing gets added, a naming trap, a
+build or test invocation particular to this repo.
 
-**Bugs and feature requests are GitHub issues on this repo** — file them as you find them.
+**Fix a defect you spot rather than reporting it** — you have the package open and the
+context to be sure. File **a GitHub issue on this repo** only when the call isn't yours to
+make: you can't pin the cause down, two defensible fixes exist, or it's too large to ride on
+the work in hand. An open issue is a report, not a queue — implement one when you're asked
+to or when it's labelled `Approved`, then close it with `Closes #<n>`.
+
 Don't record work in the repo instead: no `TODO.md`, no `NOTES.md`, no `PLAN.md`. What you
 verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
-- **`DEV_FEE_ADDRESS` must stay _named_ in the env model, pinned empty.** A file model preserves keys it does not name, so leaving it out lets a line planted on the volume — a restored backup, say — survive every wrapper write. Upstream splits the coinbase 1.5%/98.5% to whatever it holds once a miner clears 50 TH/s, and never validates it is an address, so a junk value makes every job throw. Naming it means each merge coerces it back to empty, and upstream then pays the miner 100%.
-- **Substitute the Stratum display URL in Node, not through `sh -c sed`.** The address is user-supplied and both layers read parts of it as syntax: a lone `/` ends `s///` early, and a quote or `$( )` escapes the shell.
-- **RPC and ZMQ are separate bitcoind hosts and need separate `.const()` subscriptions.** Each fires only on its own assigned-port change, which is what keeps a routine bitcoind update or restart from restarting the pool.
-- **`main` throws when bitcoind is unreachable rather than writing a placeholder address.** Starting against an address that does not resolve gives a green stratum check and miners that silently never get work.
-- **The `.cookie` read in `main` is a `.const()` watch, not a one-off.** It is what makes a bitcoind cookie rotation restart the pool instead of leaving it authenticating with a stale credential.
-- **The stratum binding keeps `secure: { ssl: false }`.** With `secure: null` the OS would expose only the TLS port on ordinary LAN gateways, and most mining hardware speaks plain stratum only.
-- **Display addresses are seeded only when missing**, so a user's selection survives updates and restores.
+- **Keep `DEV_FEE_ADDRESS` named in the env model, pinned empty.** Dropping it from the shape lets a value planted on the volume survive every write, and upstream pays it 1.5% of a found block.
+- **Substitute the Stratum display URL in Node, never through `sh -c sed`.** The address is user-supplied, and both layers read parts of it as syntax.
+- **Keep `main`'s `.const()` reads as they are.** The `.cookie` watch is what restarts the pool on a cookie rotation, and RPC and ZMQ need one bridge subscription each so a bitcoind restart does not restart the pool.
+- **Keep `secure: { ssl: false }` on the stratum binding.** With `secure: null` ordinary LAN gateways get only the TLS port, and most mining hardware speaks plain stratum only.

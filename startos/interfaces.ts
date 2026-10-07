@@ -1,4 +1,5 @@
 import { sdk } from './sdk'
+import { i18n } from './i18n'
 import { uiPort, stratumPort } from './utils'
 
 // Host id (the sdk.MultiHost.of group) — distinct from the interface ids
@@ -16,9 +17,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     protocol: 'http',
   })
   const ui = sdk.createInterface(effects, {
-    name: 'Web UI',
+    name: i18n('Web UI'),
     id: uiInterfaceId,
-    description: 'Personal web user interface for Public Pool',
+    description: i18n('Personal web user interface for Public Pool'),
     type: 'ui',
     masked: false,
     schemeOverride: null,
@@ -43,9 +44,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     secure: { ssl: false },
   })
   const stratum = sdk.createInterface(effects, {
-    name: 'Stratum Server',
+    name: i18n('Stratum Server'),
     id: stratumInterfaceId,
-    description: 'Your Stratum server',
+    description: i18n('Where your miners connect'),
     type: 'api',
     masked: false,
     schemeOverride: null,
