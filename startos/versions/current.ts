@@ -1,17 +1,23 @@
 import { VersionInfo } from '@start9labs/start-sdk'
+import { sdk } from '../sdk'
 
 export const current = VersionInfo.of({
-  version: '0.2.5:25',
+  version: '0.2.5:26',
   releaseNotes: {
-    en_US:
-      'Stops trusting certificates from a compromised certificate authority (eMudhra).',
-    es_ES:
-      'Deja de confiar en los certificados de una autoridad de certificación comprometida (eMudhra).',
-    de_DE:
-      'Vertraut Zertifikaten einer kompromittierten Zertifizierungsstelle (eMudhra) nicht mehr.',
-    pl_PL:
-      'Przestaje ufać certyfikatom przejętego urzędu certyfikacji (eMudhra).',
-    fr_FR: `Ne fait plus confiance aux certificats d'une autorité de certification compromise (eMudhra).`,
+    en_US: 'StartOS package improvements; no change to Public Pool.',
+    es_ES: 'Mejoras en el paquete de StartOS; sin cambios en Public Pool.',
+    de_DE: 'Verbesserungen am StartOS-Paket; keine Änderungen an Public Pool.',
+    pl_PL: 'Ulepszenia pakietu StartOS; bez zmian w Public Pool.',
+    fr_FR:
+      'Améliorations du paquet StartOS ; aucun changement pour Public Pool.',
   },
-  migrations: {},
+  migrations: {
+    up: async ({ effects }) => {
+      await sdk.action.clearTask(
+        effects,
+        'bitcoind:config',
+        'bitcoind:other-config',
+      )
+    },
+  },
 })
