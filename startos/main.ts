@@ -2,7 +2,7 @@ import { sdk } from './sdk'
 import { FileHelper } from '@start9labs/start-sdk'
 import { readdir, readFile, writeFile } from 'fs/promises'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
-import { rpcSubpath } from 'bitcoin-core-startos/startos/utils'
+import { rpcVolumeId } from 'bitcoin-core-startos/startos/utils'
 import {
   bitcoindCookie,
   bitcoindMountpoint,
@@ -61,8 +61,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
       })
       .mountDependency<typeof bitcoinManifest>({
         dependencyId: 'bitcoind',
-        volumeId: 'main',
-        subpath: rpcSubpath,
+        volumeId: rpcVolumeId,
+        subpath: null,
         mountpoint: bitcoindMountpoint,
         readonly: true,
       }),
